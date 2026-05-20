@@ -1,9 +1,9 @@
-## Plan: Web Playable Port for TKA (Expanded)
+# WebGL port implementation plan for TKA game
 
 Goal: ship a playable WebGL/WASM build using the most up‑to‑date supported MonoGame web backend, while keeping the shared game logic intact and adapting audio/shaders/input to browser constraints.
 
 ### Target Backend (Most Up-to-Date Web Support)
-- **Primary choice**: Use the most stable and currently recommended MonoGame WebAssembly (WebGL2) backend for .NET 8 browser‑wasm.
+- **Primary choice**: Use the stable MonoGame WebAssembly (WebGL2) backend for .NET 8 browser‑wasm, pinned to the latest recommended stable MonoGame toolchain (currently 3.8.4.1 at implementation time).
 - **Rationale**: Prefer official/stable packages and the most actively maintained web backend at implementation time.
 - **Fallback**: If the recommended package shifts, update references and MGCB platform to match the current stable backend.
 
@@ -30,7 +30,7 @@ Goal: ship a playable WebGL/WASM build using the most up‑to‑date supported M
 - **Platform checks**: add `IsWeb` and treat web as OpenGL.
 
 ### Shader WebGL Support List (Audit + Dummy File)
-- **Audit list file**: `Helicopter.Core/Content/WebGL/unsupported-shaders.md`
+- **Audit list file**: `unsupported-shaders.md`
 - **Custom effects to validate**: `circles.fx`, `drunk.fx`, `flip.fx`, `Negative.fx`, `outline.fx`, `shakeblur.fx`, `shakezigzag.fx`, `wave.fx`
 - **Prebuilt DesktopGL XNBs (not WebGL‑safe)**: `Effects/effect0.xnb`–`Effects/effect4.xnb`
 - **Rule**: keep all effects enabled; if an effect fails on WebGL, unload/disable it at runtime and log it for later fixes.
