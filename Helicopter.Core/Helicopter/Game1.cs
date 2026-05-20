@@ -678,7 +678,12 @@ namespace Helicopter.Core
             Camera.effects[3] = base.Content.Load<Effect>("wave");
             Camera.effects[2] = base.Content.Load<Effect>("circles");
             Camera.effects[1] = base.Content.Load<Effect>("outline");
-            if (IsOpenGL)
+            if (IsWeb)
+            {
+                Camera.effects[4] = base.Content.Load<Effect>("shakezigzag");
+                Camera.effects[0] = base.Content.Load<Effect>("shakeblur");
+            }
+            else if (IsOpenGL)
 			{
                 Camera.effects[4] = base.Content.Load<Effect>("Effects/effect4");
                 Camera.effects[0] = base.Content.Load<Effect>("Effects/effect0");
