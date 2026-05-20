@@ -91,6 +91,7 @@ namespace Helicopter.Core
 		public static Texture2D sound_levels;
 
 		public static float mountainVelocity = 200f;
+		public const float VolumeLevelStep = 1f / 7f;
 
 		public static bool debugCatUnlock = false;
 
@@ -139,7 +140,9 @@ namespace Helicopter.Core
 		private static float vibrationTime = 0.1f;
 
         public static List<SoundEffect> soundEffects = new();
-		public static float soundEffectsVolume = 1f;
+		private static float soundEffectsVolume = 1f;
+		public static float SoundEffectsVolume => Global.soundEffectsVolume;
+		private static readonly List<SoundEffectInstance> activeSoundEffects = new();
 
         public static bool fullscreenOn;
 
@@ -190,12 +193,33 @@ namespace Helicopter.Core
                 return;
             }
 
-            Global.soundEffects[Global.Random.Next(0, Global.soundEffects.Count)].Play(Global.soundEffectsVolume, 0f, 0f);
+            CleanupSoundEffects();
+            SoundEffectInstance soundEffect = Global.soundEffects[Global.Random.Next(0, Global.soundEffects.Count)].CreateInstance();
+            soundEffect.Volume = Global.SoundEffectsVolume;
+            soundEffect.Play();
+            activeSoundEffects.Add(soundEffect);
 		}
 
         public static void SetSoundEffectsVolume(float volume)
 		{
 			Global.soundEffectsVolume = MathHelper.Clamp(volume, 0f, 1f);
+            CleanupSoundEffects();
+            foreach (SoundEffectInstance soundEffect in activeSoundEffects)
+            {
+                soundEffect.Volume = Global.SoundEffectsVolume;
+            }
+		}
+
+        private static void CleanupSoundEffects()
+		{
+			for (int i = activeSoundEffects.Count - 1; i >= 0; i--)
+			{
+                if (activeSoundEffects[i].State != SoundState.Playing)
+                {
+                    activeSoundEffects[i].Dispose();
+                    activeSoundEffects.RemoveAt(i);
+                }
+            }
 		}
 
 		public static bool CanBuyGame()

@@ -302,14 +302,14 @@ namespace Helicopter.Core
                 this.musicIndex--;
 				if (this.musicIndex == -1)
 					this.musicIndex = 0;
-				MediaPlayer.Volume = this.musicIndex * 0.142857f;
+				MediaPlayer.Volume = this.musicIndex * Global.VolumeStep;
             }
             if (currInput.IsButtonPressed(Buttons.DPadRight))
             {
                 this.musicIndex++;
 				if (this.musicIndex == 8)
 					this.musicIndex = 7;
-                MediaPlayer.Volume = this.musicIndex * 0.142857f;
+                MediaPlayer.Volume = this.musicIndex * Global.VolumeStep;
             }
             this.musicValue = this.musicIndex;
         }
@@ -325,14 +325,14 @@ namespace Helicopter.Core
                 this.FXIndex--;
                 if (this.FXIndex == -1)
                     this.FXIndex = 0;
-                Global.SetSoundEffectsVolume(this.FXIndex * 0.142857f);
+                Global.SetSoundEffectsVolume(this.FXIndex * Global.VolumeStep);
             }
             if (currInput.IsButtonPressed(Buttons.DPadRight))
             {
                 this.FXIndex++;
                 if (this.FXIndex == 8)
                     this.FXIndex = 7;
-                Global.SetSoundEffectsVolume(this.FXIndex * 0.142857f);
+                Global.SetSoundEffectsVolume(this.FXIndex * Global.VolumeStep);
             }
             this.FXValue = this.FXIndex;
         }

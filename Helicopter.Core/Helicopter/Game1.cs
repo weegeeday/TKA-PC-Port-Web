@@ -290,8 +290,8 @@ namespace Helicopter.Core
             }
 			else if (Game1.IsDesktop)
 			{
-                MediaPlayer.Volume = Storage.musicValue_ * 0.142857f;
-                Global.SetSoundEffectsVolume(Storage.FXValue_ * 0.142857f);
+                MediaPlayer.Volume = Storage.musicValue_ * Global.VolumeStep;
+                Global.SetSoundEffectsVolume(Storage.FXValue_ * Global.VolumeStep);
             }
             base.LoadContent();
 		}
