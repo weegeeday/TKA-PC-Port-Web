@@ -998,26 +998,17 @@
 /processorParam:Quality=Best
 /build:Music/MyRainbow.wma
 
-#begin Music/newXactProject.xgs
-/copy:Music/newXactProject.xgs
-
 #begin Music/SeaOfLove.wma
 /importer:WmaImporter
 /processor:SongProcessor
 /processorParam:Quality=Best
 /build:Music/SeaOfLove.wma
 
-#begin Music/Sound Bank.xsb
-/copy:Music/Sound Bank.xsb
-
 #begin Music/TasteOfHeaven.wma
 /importer:WmaImporter
 /processor:SongProcessor
 /processorParam:Quality=Best
 /build:Music/TasteOfHeaven.wma
-
-#begin Music/Wave Bank.xwb
-/copy:Music/Wave Bank.xwb
 
 #begin Music/YoureShining.wma
 /importer:WmaImporter
@@ -1078,4 +1069,3 @@
 /processor:EffectProcessor
 /processorParam:DebugMode=Auto
 /build:wave.fx
-

@@ -92,10 +92,6 @@ namespace Helicopter.Core
 
 		public static float mountainVelocity = 200f;
 
-		public static AudioEngine audioEngine;
-		public static WaveBank waveBank;
-		public static SoundBank soundBank;
-
 		public static bool debugCatUnlock = false;
 
 		public static Color tunnelColor = Color.White;
@@ -143,6 +139,7 @@ namespace Helicopter.Core
 		private static float vibrationTime = 0.1f;
 
         public static List<SoundEffect> soundEffects = new();
+		public static float soundEffectsVolume = 1f;
 
         public static bool fullscreenOn;
 
@@ -188,21 +185,17 @@ namespace Helicopter.Core
 
 		public static void PlayCatSound()
 		{
-            switch (Global.Random.Next(0, 4))
-			{
-			case 0:
-				Global.soundBank.PlayCue("cat_01");
-				break;
-			case 1:
-				Global.soundBank.PlayCue("cat_02");
-				break;
-			case 2:
-				Global.soundBank.PlayCue("cat_03");
-				break;
-			case 3:
-				Global.soundBank.PlayCue("cat_04");
-				break;
-			}
+            if (Global.soundEffects.Count == 0)
+            {
+                return;
+            }
+
+            Global.soundEffects[Global.Random.Next(0, Global.soundEffects.Count)].Play(Global.soundEffectsVolume, 0f, 0f);
+		}
+
+        public static void SetSoundEffectsVolume(float volume)
+		{
+			Global.soundEffectsVolume = MathHelper.Clamp(volume, 0f, 1f);
 		}
 
 		public static bool CanBuyGame()

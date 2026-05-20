@@ -232,11 +232,11 @@ namespace Helicopter.Core
                 }
                 if (this.sfxOn)
                 {
-                    Global.audioEngine.GetCategory("Default").SetVolume(1f);
+                    Global.SetSoundEffectsVolume(1f);
                 }
                 else
                 {
-                    Global.audioEngine.GetCategory("Default").SetVolume(0f);
+                    Global.SetSoundEffectsVolume(0f);
                 }
                 if (this.vibrationOn)
                 {
@@ -325,14 +325,14 @@ namespace Helicopter.Core
                 this.FXIndex--;
                 if (this.FXIndex == -1)
                     this.FXIndex = 0;
-                Global.audioEngine.GetCategory("Default").SetVolume(this.FXIndex * 0.142857f);
+                Global.SetSoundEffectsVolume(this.FXIndex * 0.142857f);
             }
             if (currInput.IsButtonPressed(Buttons.DPadRight))
             {
                 this.FXIndex++;
                 if (this.FXIndex == 8)
                     this.FXIndex = 7;
-                Global.audioEngine.GetCategory("Default").SetVolume(this.FXIndex * 0.142857f);
+                Global.SetSoundEffectsVolume(this.FXIndex * 0.142857f);
             }
             this.FXValue = this.FXIndex;
         }

@@ -242,9 +242,6 @@ namespace Helicopter.Core
             }
 
             this.renderTarget = new RenderTarget2D(base.GraphicsDevice, 1280, 720, mipMap: false, SurfaceFormat.Color, DepthFormat.None);
-			Global.audioEngine = new AudioEngine("Content/Music/newXactProject.xgs");
-			Global.waveBank = new WaveBank(Global.audioEngine, "Content/Music/Wave Bank.xwb");
-			Global.soundBank = new SoundBank(Global.audioEngine, "Content/Music/Sound Bank.xsb");
 			Global.itemSelectedEffect = new ItemSelectedEffect();
 			if (OperatingSystem.IsWindows())
 			{
@@ -294,7 +291,7 @@ namespace Helicopter.Core
 			else if (Game1.IsDesktop)
 			{
                 MediaPlayer.Volume = Storage.musicValue_ * 0.142857f;
-                Global.audioEngine.GetCategory("Default").SetVolume(Storage.FXValue_ * 0.142857f);
+                Global.SetSoundEffectsVolume(Storage.FXValue_ * 0.142857f);
             }
             base.LoadContent();
 		}
@@ -561,7 +558,6 @@ namespace Helicopter.Core
 				break;
 			}
 			this.currInput.EndUpdate();
-            //Global.audioEngine.Update();
             Global.UpdateVibration(num);
 			base.Update(gameTime);
 		}
