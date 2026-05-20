@@ -15,7 +15,7 @@ Goal: ship a playable WebGL/WASM build using the most up‑to‑date supported M
 5. **Rebuild shaders for WebGL**: compile all `.fx` for WebGL; remove prebuilt DesktopGL XNBs and generate WebGL variants.
 6. **Audio conversion**: convert `Music/*.wma` to `.ogg` or `.mp3`; update `SongManager` to load web formats.
 7. **Replace XACT**: remove XACT usage (`.xgs/.xwb/.xsb`) and switch to `SoundEffect` / `SoundEffectInstance` for SFX.
-8. **Browser audio gate**: add “Tap/Click to Start” gate so audio starts after user interaction.
+8. **Browser audio gate (required for feature phase)**: add “Tap/Click to Start” gate so audio starts after user interaction.
 9. **Input adapter**: add a pointer adapter for Web (mouse → touch) in `InputState` or a web‑specific input wrapper.
 10. **Platform flags**: add `IsWeb = OperatingSystem.IsBrowser()` and fold into `IsOpenGL` assumptions.
 11. **Packaging**: output `wwwroot/Content` and ensure the content build step copies assets to the web host.
@@ -24,7 +24,7 @@ Goal: ship a playable WebGL/WASM build using the most up‑to‑date supported M
 ### Required Adjustments (Explicit)
 - **Project structure**: create `Helicopter.Web` and reference `Helicopter.Core`.
 - **Core project**: make `Helicopter.Core` platform‑agnostic by removing platform‑specific package references.
-- **Audio**: convert to `.ogg` or `.mp3`, add a browser interaction gate, and replace XACT.
+- **Audio**: convert to `.ogg` or `.mp3`, add a required click/tap-to-start browser interaction gate before gameplay audio, and replace XACT.
 - **Shaders**: remove DesktopGL XNBs and compile `.fx` against WebGL; disable or fallback on failures.
 - **Input**: map mouse/touch events to in‑game touch semantics.
 - **Platform checks**: add `IsWeb` and treat web as OpenGL.
