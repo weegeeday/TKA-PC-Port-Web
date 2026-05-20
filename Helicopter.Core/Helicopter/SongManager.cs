@@ -6,6 +6,7 @@ namespace Helicopter.Core
 {
 	public class SongManager
 	{
+		private const string MusicContentRoot = "Content/Music";
 		private ContentManager Content;
 
 		private Song song;
@@ -17,7 +18,7 @@ namespace Helicopter.Core
 
         public SongManager(Game1 game)
 		{
-			this.Content = new ContentManager((IServiceProvider)game.Services, "Content/Music");
+			this.Content = new ContentManager((IServiceProvider)game.Services, MusicContentRoot);
 			this.song = LoadSong("MenuSong");
 		}
 
@@ -27,18 +28,22 @@ namespace Helicopter.Core
             {
                 try
                 {
-                    return Song.FromUri(songName, new Uri($"Content/Music/{songName}.ogg", UriKind.Relative));
+                    return Song.FromUri(songName, new Uri($"{MusicContentRoot}/{songName}.ogg", UriKind.Relative));
                 }
-                catch
+                catch (Exception e) when (e is InvalidOperationException || e is ArgumentException || e is UriFormatException || e is NotSupportedException)
                 {
+                    Console.WriteLine($"Failed to load web song '{songName}.ogg':");
+                    Console.WriteLine(e);
                 }
 
                 try
                 {
-                    return Song.FromUri(songName, new Uri($"Content/Music/{songName}.mp3", UriKind.Relative));
+                    return Song.FromUri(songName, new Uri($"{MusicContentRoot}/{songName}.mp3", UriKind.Relative));
                 }
-                catch
+                catch (Exception e) when (e is InvalidOperationException || e is ArgumentException || e is UriFormatException || e is NotSupportedException)
                 {
+                    Console.WriteLine($"Failed to load web song '{songName}.mp3':");
+                    Console.WriteLine(e);
                 }
             }
 
