@@ -16,7 +16,8 @@ namespace Helicopter.Core
 	{
         public readonly static bool IsMobile = OperatingSystem.IsAndroid() || OperatingSystem.IsIOS();
         public readonly static bool IsDesktop = OperatingSystem.IsMacOS() || OperatingSystem.IsLinux() || OperatingSystem.IsWindows();
-		public static bool IsOpenGL = !OperatingSystem.IsWindows();
+        public readonly static bool IsWeb = OperatingSystem.IsBrowser();
+		public static bool IsOpenGL = IsWeb || !OperatingSystem.IsWindows();
 
         private RenderTarget2D renderTarget;
 
