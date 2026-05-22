@@ -359,7 +359,15 @@ namespace Helicopter.Core
             }
 
             touchLocations = TouchPanel.GetState();
-            if (touchLocations.Count == 0)
+            if (IsWeb && touchLocations.Count == 0)
+            {
+                // Use mouse position as a synthetic touch point on Web so that
+                // all existing rectangle hit-tests work without modification.
+                var mouse = Mouse.GetState();
+                var mouseTouch = new TouchLocation(0, TouchLocationState.Pressed, mouse.Position.ToVector2());
+                touchLocations = new TouchCollection(new[] { mouseTouch });
+            }
+            else if (touchLocations.Count == 0)
                 touchLocations = new TouchCollection(del);
             Rectangle startButton = new(373, 533, 534, 135);
             Rectangle pauseButtonRec = new(50, 50, 64, 64);
