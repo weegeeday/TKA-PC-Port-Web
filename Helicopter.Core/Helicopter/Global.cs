@@ -92,6 +92,7 @@ namespace Helicopter.Core
 
 		public static float mountainVelocity = 200f;
 		public const float VolumeLevelStep = 1f / 7f;
+		public const float VolumeStep = VolumeLevelStep;
 
 		public static bool debugCatUnlock = false;
 
