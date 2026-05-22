@@ -237,11 +237,19 @@ namespace Helicopter.Core
 			return false;
 		}
 
+		private static void PadSetVibration(float left, float right)
+		{
+			if (Global.playerIndex.HasValue)
+			{
+				GamePad.SetVibration(Global.playerIndex.Value, left, right);
+			}
+		}
+
 		public static void SetVibrationPause()
 		{
 			Global.vibratingPaused = true;
 			Vibration.MobileOff();
-			GamePad.SetVibration(Global.playerIndex.Value, 0f, 0f);
+			PadSetVibration(0f, 0f);
 		}
 
 		public static void SetVibrationResume()
@@ -252,12 +260,12 @@ namespace Helicopter.Core
 				if (Global.vibratingEndless)
 				{
                     Vibration.MobileOn();
-                    GamePad.SetVibration(Global.playerIndex.Value, 0.3f, 0.3f);
+                    PadSetVibration(0.3f, 0.3f);
 				}
 				if (Global.vibratingTemp)
 				{
                     Vibration.MobileOn();
-                    GamePad.SetVibration(Global.playerIndex.Value, 1f, 1f);
+                    PadSetVibration(1f, 1f);
 				}
 			}
 		}
@@ -265,7 +273,7 @@ namespace Helicopter.Core
 		public static void ResetVibration()
 		{
             Vibration.MobileOff();
-            GamePad.SetVibration(Global.playerIndex.Value, 0f, 0f);
+            PadSetVibration(0f, 0f);
 			Global.vibratingTemp = false;
 			Global.vibratingEndless = false;
 			Global.vibratingPaused = false;
@@ -295,7 +303,7 @@ namespace Helicopter.Core
 			if (on)
 			{
                 Vibration.MobileOn();
-                GamePad.SetVibration(Global.playerIndex.Value, 1f, 1f);
+                PadSetVibration(1f, 1f);
 				Global.vibratingTemp = true;
 				Global.vibrationTimer = 0f;
 				return;
@@ -303,12 +311,12 @@ namespace Helicopter.Core
 			if (Global.vibratingEndless)
 			{
                 Vibration.MobileOn();
-                GamePad.SetVibration(Global.playerIndex.Value, 0.3f, 0.3f);
+                PadSetVibration(0.3f, 0.3f);
 			}
 			else
 			{
 				Vibration.MobileOff();
-                GamePad.SetVibration(Global.playerIndex.Value, 0f, 0f);
+                PadSetVibration(0f, 0f);
 			}
 			Global.vibratingTemp = false;
 			Global.vibrationTimer = 0f;
@@ -325,7 +333,7 @@ namespace Helicopter.Core
 				if (!Global.vibratingTemp)
 				{
                     Vibration.MobileOn();
-                    GamePad.SetVibration(Global.playerIndex.Value, 0.3f, 0.3f);
+                    PadSetVibration(0.3f, 0.3f);
 				}
 				Global.vibratingEndless = true;
 			}
@@ -334,7 +342,7 @@ namespace Helicopter.Core
 				if (!Global.vibratingTemp)
 				{
 					Vibration.MobileOff();
-                    GamePad.SetVibration(Global.playerIndex.Value, 0f, 0f);
+                    PadSetVibration(0f, 0f);
 				}
 				Global.vibratingEndless = false;
 			}
