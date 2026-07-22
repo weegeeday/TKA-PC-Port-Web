@@ -50,7 +50,7 @@ namespace Helicopter.Core
                 base.AddMenuItem(new MenuItem(Global.optionsTex, new Rectangle(0, 851, 364, 54), new Vector2(640f, 490f)));
                 base.AddMenuItem(new MenuItem(Global.optionsTex, new Rectangle(0, 907, 236, 54), new Vector2(640f, 587f)));
             }
-			else if (Game1.IsDesktop)
+			else if (Game1.IsDesktop || Game1.IsWeb)
 			{
 				musicOn = true;
                 sfxOn = true;
@@ -232,11 +232,11 @@ namespace Helicopter.Core
                 }
                 if (this.sfxOn)
                 {
-                    Global.audioEngine.GetCategory("Default").SetVolume(1f);
+                    Global.SetSoundEffectsVolume(1f);
                 }
                 else
                 {
-                    Global.audioEngine.GetCategory("Default").SetVolume(0f);
+                    Global.SetSoundEffectsVolume(0f);
                 }
                 if (this.vibrationOn)
                 {
@@ -268,6 +268,11 @@ namespace Helicopter.Core
                 }
                 Global.SetResolution(this.resValue);
                 Resolution.SetResolution((int)Global.resolution.X, (int)Global.resolution.Y, Global.fullscreenOn);
+            }
+            else if (Game1.IsWeb)
+            {
+                MediaPlayer.Volume = this.musicIndex * Global.VolumeStep;
+                Global.SetSoundEffectsVolume(this.FXIndex * Global.VolumeStep);
             }
         }
 
@@ -302,14 +307,14 @@ namespace Helicopter.Core
                 this.musicIndex--;
 				if (this.musicIndex == -1)
 					this.musicIndex = 0;
-				MediaPlayer.Volume = this.musicIndex * 0.142857f;
+				MediaPlayer.Volume = this.musicIndex * Global.VolumeStep;
             }
             if (currInput.IsButtonPressed(Buttons.DPadRight))
             {
                 this.musicIndex++;
 				if (this.musicIndex == 8)
 					this.musicIndex = 7;
-                MediaPlayer.Volume = this.musicIndex * 0.142857f;
+                MediaPlayer.Volume = this.musicIndex * Global.VolumeStep;
             }
             this.musicValue = this.musicIndex;
         }
@@ -325,14 +330,14 @@ namespace Helicopter.Core
                 this.FXIndex--;
                 if (this.FXIndex == -1)
                     this.FXIndex = 0;
-                Global.audioEngine.GetCategory("Default").SetVolume(this.FXIndex * 0.142857f);
+                Global.SetSoundEffectsVolume(this.FXIndex * Global.VolumeStep);
             }
             if (currInput.IsButtonPressed(Buttons.DPadRight))
             {
                 this.FXIndex++;
                 if (this.FXIndex == 8)
                     this.FXIndex = 7;
-                Global.audioEngine.GetCategory("Default").SetVolume(this.FXIndex * 0.142857f);
+                Global.SetSoundEffectsVolume(this.FXIndex * Global.VolumeStep);
             }
             this.FXValue = this.FXIndex;
         }
@@ -374,7 +379,7 @@ namespace Helicopter.Core
                     this.DrawOffOn(spriteBatch, new Vector2(900f, 298f));
                 }
             }
-            else if (Game1.IsDesktop)
+		    else if (Game1.IsDesktop || Game1.IsWeb)
             {
                 spriteBatch.Draw(Global.optionsTex, Vector2.Zero, (Rectangle?)new Rectangle(0, 0, 1280, 720), Color.White);
                 spriteBatch.Draw(Global.optionsTex, new Vector2(412f, 43f), (Rectangle?)new Rectangle(799, 885, 456, 58), Color.White); //options title

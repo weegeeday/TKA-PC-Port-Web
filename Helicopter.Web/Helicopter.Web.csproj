@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-browser</TargetFramework>
+    <Platforms>AnyCPU</Platforms>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Helicopter.Core\Helicopter.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Compile-time reference to MonoGame so that MonoGame types referenced through
+         Helicopter.Core are resolvable. Replace with the proper MonoGame browser/WASM
+         package (e.g. MonoGame.Framework.Browser) once one is available. -->
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

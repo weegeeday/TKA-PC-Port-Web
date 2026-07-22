@@ -16,7 +16,8 @@ namespace Helicopter.Core
 	{
         public readonly static bool IsMobile = OperatingSystem.IsAndroid() || OperatingSystem.IsIOS();
         public readonly static bool IsDesktop = OperatingSystem.IsMacOS() || OperatingSystem.IsLinux() || OperatingSystem.IsWindows();
-		public static bool IsOpenGL = !OperatingSystem.IsWindows();
+        public readonly static bool IsWeb = OperatingSystem.IsBrowser();
+		public static bool IsOpenGL = IsWeb || !OperatingSystem.IsWindows();
 
         private RenderTarget2D renderTarget;
 
@@ -156,6 +157,8 @@ namespace Helicopter.Core
 			new Vector2(132.5f, 57.5f)
 		};
 
+		private bool webAudioStarted = false;
+
 		public Game1()
 		{
 			base.Exiting += OnExit;
@@ -168,7 +171,7 @@ namespace Helicopter.Core
                 Resolution.SetVirtualResolution(1280, 720);
                 Resolution.SetResolution(1280, 720, false);
             }
-			else if (Game1.IsDesktop)
+			else if (Game1.IsDesktop || Game1.IsWeb)
 			{
                 Global.fullscreenOn = false;
                 Global.resolution = new Vector2(1280, 720); //external resolution
@@ -241,9 +244,6 @@ namespace Helicopter.Core
             }
 
             this.renderTarget = new RenderTarget2D(base.GraphicsDevice, 1280, 720, mipMap: false, SurfaceFormat.Color, DepthFormat.None);
-			Global.audioEngine = new AudioEngine("Content/Music/newXactProject.xgs");
-			Global.waveBank = new WaveBank(Global.audioEngine, "Content/Music/Wave Bank.xwb");
-			Global.soundBank = new SoundBank(Global.audioEngine, "Content/Music/Sound Bank.xsb");
 			Global.itemSelectedEffect = new ItemSelectedEffect();
 			if (OperatingSystem.IsWindows())
 			{
@@ -283,8 +283,11 @@ namespace Helicopter.Core
 			this.LoadForeground();
 			this.LoadEventInfo(0);
             this.scoreSystem.scoreInfo = Storage.LoadScoreInfo();
-            MediaPlayer.Play(this.songManager.CurrentSong);
-			MediaPlayer.IsRepeating = true;
+            if (!Game1.IsWeb)
+            {
+                MediaPlayer.Play(this.songManager.CurrentSong);
+                MediaPlayer.IsRepeating = true;
+            }
 			if (Game1.IsMobile)
 			{
                 //Global.pixel = new Texture2D(base.GraphicsDevice, 1, 1);
@@ -292,8 +295,13 @@ namespace Helicopter.Core
             }
 			else if (Game1.IsDesktop)
 			{
-                MediaPlayer.Volume = Storage.musicValue_ * 0.142857f;
-                Global.audioEngine.GetCategory("Default").SetVolume(Storage.FXValue_ * 0.142857f);
+                MediaPlayer.Volume = Storage.musicValue_ * Global.VolumeStep;
+                Global.SetSoundEffectsVolume(Storage.FXValue_ * Global.VolumeStep);
+            }
+            else if (Game1.IsWeb)
+            {
+                MediaPlayer.Volume = 0.5f;
+                Global.SetSoundEffectsVolume(1f);
             }
             base.LoadContent();
 		}
@@ -319,6 +327,16 @@ namespace Helicopter.Core
             Storage.SaveAchievementInfo();
         }
 
+        private void StartWebAudio()
+        {
+            if (Game1.IsWeb && !this.webAudioStarted)
+            {
+                this.webAudioStarted = true;
+                MediaPlayer.IsRepeating = true;
+                MediaPlayer.Play(this.songManager.CurrentSong);
+            }
+        }
+
         protected override void Update(GameTime gameTime)
 		{
 			if (this.stageSelectMenu.getCurrentLevel() == 5)
@@ -341,7 +359,18 @@ namespace Helicopter.Core
             }
 
             touchLocations = TouchPanel.GetState();
-            if (touchLocations.Count == 0)
+            if (IsWeb && touchLocations.Count == 0)
+            {
+                // Use mouse position as a synthetic touch point on Web so that
+                // all existing rectangle hit-tests work without modification.
+                var mouse = Mouse.GetState();
+                var touchState = mouse.LeftButton == ButtonState.Pressed
+                    ? TouchLocationState.Pressed
+                    : TouchLocationState.Released;
+                var mouseTouch = new TouchLocation(0, touchState, mouse.Position.ToVector2());
+                touchLocations = new TouchCollection(new[] { mouseTouch });
+            }
+            else if (touchLocations.Count == 0)
                 touchLocations = new TouchCollection(del);
             Rectangle startButton = new(373, 533, 534, 135);
             Rectangle pauseButtonRec = new(50, 50, 64, 64);
@@ -404,6 +433,7 @@ namespace Helicopter.Core
                     if (GamePad.GetState(playerIndex).IsButtonDown(Buttons.Start) || (startButton.Contains((touchLocations[0].Position - touchOffset) * resolutionDifference) && currInput.IsThingTouched()))
                     {
                         Global.playerIndex = playerIndex;
+                        this.StartWebAudio();
                         Global.PlayCatSound();
 						//this.scoreSystem.LoadInfo();
 						this.gameState = GameState.MAIN_MENU;
@@ -415,6 +445,7 @@ namespace Helicopter.Core
                     if (!Global.playerIndex.HasValue)
                     {
                         Global.playerIndex = PlayerIndex.One;
+                        this.StartWebAudio();
                         Global.PlayCatSound();
                         //this.scoreSystem.LoadInfo();
                     }
@@ -560,7 +591,6 @@ namespace Helicopter.Core
 				break;
 			}
 			this.currInput.EndUpdate();
-            //Global.audioEngine.Update();
             Global.UpdateVibration(num);
 			base.Update(gameTime);
 		}
@@ -677,7 +707,12 @@ namespace Helicopter.Core
             Camera.effects[3] = base.Content.Load<Effect>("wave");
             Camera.effects[2] = base.Content.Load<Effect>("circles");
             Camera.effects[1] = base.Content.Load<Effect>("outline");
-            if (IsOpenGL)
+            if (IsWeb)
+            {
+                Camera.effects[4] = base.Content.Load<Effect>("shakezigzag");
+                Camera.effects[0] = base.Content.Load<Effect>("shakeblur");
+            }
+            else if (IsOpenGL)
 			{
                 Camera.effects[4] = base.Content.Load<Effect>("Effects/effect4");
                 Camera.effects[0] = base.Content.Load<Effect>("Effects/effect0");

@@ -17,6 +17,10 @@ namespace Helicopter.Core
 
         private TouchCollection currTouches;
 
+        private MouseState prevMouseState;
+
+        private MouseState currMouseState;
+
         public void Update()
 		{
 			if (Global.playerIndex.HasValue)
@@ -25,6 +29,10 @@ namespace Helicopter.Core
 			}
 			this.currKeyInput = Keyboard.GetState();
             this.currTouches = TouchPanel.GetState();
+            if (Game1.IsWeb)
+            {
+                this.currMouseState = Mouse.GetState();
+            }
         }
 
 		public void EndUpdate()
@@ -32,13 +40,19 @@ namespace Helicopter.Core
 			this.prevInput = this.currInput;
 			this.prevKeyInput = this.currKeyInput;
             this.prevTouches = this.currTouches;
+            if (Game1.IsWeb)
+            {
+                this.prevMouseState = this.currMouseState;
+            }
         }
 
         public bool IsThingTouched()
         {
-            bool flag = this.currTouches.Count > 0 && this.prevTouches.Count == 0;
-            bool flag2 = false;
-            return flag || flag2;
+            bool touchPressed = this.currTouches.Count > 0 && this.prevTouches.Count == 0;
+            bool mousePressed = Game1.IsWeb
+                && this.currMouseState.LeftButton == ButtonState.Pressed
+                && this.prevMouseState.LeftButton == ButtonState.Released;
+            return touchPressed || mousePressed;
         }
 
         public bool IsButtonPressed(Buttons button)

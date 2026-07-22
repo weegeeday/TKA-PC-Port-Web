@@ -4,8 +4,9 @@
     <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
+    <!-- PrivateAssets="all" keeps MonoGame types resolvable at compile time for Core
+         without flowing this DesktopGL dependency to consumers (Web, WindowsDX, etc.).
+         Each platform project provides its own MonoGame runtime reference. -->
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*" PrivateAssets="all" />
   </ItemGroup>
 </Project>

@@ -1,0 +1,61 @@
+#----------------------------- Global Properties ----------------------------#
+
+/outputDir:../bin/$(Platform)/Content
+/intermediateDir:../obj/$(Platform)/Content
+/platform:WebGL
+/config:
+/profile:Reach
+/compress:False
+
+#-------------------------------- References --------------------------------#
+
+
+#---------------------------------- Content ---------------------------------#
+
+#begin ../../Helicopter.Core/Content/circles.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:../../Helicopter.Core/Content/circles.fx;circles
+
+#begin ../../Helicopter.Core/Content/drunk.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:../../Helicopter.Core/Content/drunk.fx;drunk
+
+#begin ../../Helicopter.Core/Content/flip.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:../../Helicopter.Core/Content/flip.fx;flip
+
+#begin ../../Helicopter.Core/Content/Negative.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:../../Helicopter.Core/Content/Negative.fx;Negative
+
+#begin ../../Helicopter.Core/Content/outline.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:../../Helicopter.Core/Content/outline.fx;outline
+
+#begin ../../Helicopter.Core/Content/shakeblur.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:../../Helicopter.Core/Content/shakeblur.fx;shakeblur
+
+#begin ../../Helicopter.Core/Content/shakezigzag.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:../../Helicopter.Core/Content/shakezigzag.fx;shakezigzag
+
+#begin ../../Helicopter.Core/Content/wave.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:../../Helicopter.Core/Content/wave.fx;wave
