@@ -974,47 +974,47 @@
 #begin Music/cat_04.xnb
 /copy:Music/cat_04.xnb
 
-#begin Music/IntergalacticalHigh.wma
-/importer:WmaImporter
+#begin Music/IntergalacticalHigh.ogg
+/importer:OggImporter
 /processor:SongProcessor
 /processorParam:Quality=Best
-/build:Music/IntergalacticalHigh.wma
+/build:Music/IntergalacticalHigh.ogg
 
-#begin Music/LikeARainbow.wma
-/importer:WmaImporter
+#begin Music/LikeARainbow.ogg
+/importer:OggImporter
 /processor:SongProcessor
 /processorParam:Quality=Best
-/build:Music/LikeARainbow.wma
+/build:Music/LikeARainbow.ogg
 
-#begin Music/MenuSong.wma
-/importer:WmaImporter
+#begin Music/MenuSong.ogg
+/importer:OggImporter
 /processor:SongProcessor
 /processorParam:Quality=Best
-/build:Music/MenuSong.wma
+/build:Music/MenuSong.ogg
 
-#begin Music/MyRainbow.wma
-/importer:WmaImporter
+#begin Music/MyRainbow.ogg
+/importer:OggImporter
 /processor:SongProcessor
 /processorParam:Quality=Best
-/build:Music/MyRainbow.wma
+/build:Music/MyRainbow.ogg
 
-#begin Music/SeaOfLove.wma
-/importer:WmaImporter
+#begin Music/SeaOfLove.ogg
+/importer:OggImporter
 /processor:SongProcessor
 /processorParam:Quality=Best
-/build:Music/SeaOfLove.wma
+/build:Music/SeaOfLove.ogg
 
-#begin Music/TasteOfHeaven.wma
-/importer:WmaImporter
+#begin Music/TasteOfHeaven.ogg
+/importer:OggImporter
 /processor:SongProcessor
 /processorParam:Quality=Best
-/build:Music/TasteOfHeaven.wma
+/build:Music/TasteOfHeaven.ogg
 
-#begin Music/YoureShining.wma
-/importer:WmaImporter
+#begin Music/YoureShining.ogg
+/importer:OggImporter
 /processor:SongProcessor
 /processorParam:Quality=Best
-/build:Music/YoureShining.wma
+/build:Music/YoureShining.ogg
 
 #begin Negative.fx
 /importer:EffectImporter

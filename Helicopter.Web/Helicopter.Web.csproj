@@ -1,15 +1,23 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
   <PropertyGroup>
-    <TargetFramework>net8.0-browser</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Helicopter.Core\Helicopter.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <!-- Compile-time reference to MonoGame so that MonoGame types referenced through
-         Helicopter.Core are resolvable. Replace with the proper MonoGame browser/WASM
-         package (e.g. MonoGame.Framework.Browser) once one is available. -->
-    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Kni Blazor Backend -->
+    <PackageReference Include="nkast.Xna.Framework.Content.Pipeline.Builder" Version="3.14.9001" />
+    <PackageReference Include="nkast.Xna.Framework.Blazor" Version="3.14.9001" />
+    <PackageReference Include="nkast.Xna.Framework.Graphics" Version="3.14.9001" />
+    <PackageReference Include="nkast.Xna.Framework.Audio" Version="3.14.9001" />
+    <PackageReference Include="nkast.Xna.Framework.Media" Version="3.14.9001" />
+    <PackageReference Include="nkast.Xna.Framework.Input" Version="3.14.9001" />
+    <PackageReference Include="nkast.Xna.Framework.Game" Version="3.14.9001" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.0" PrivateAssets="all" />
   </ItemGroup>
 </Project>

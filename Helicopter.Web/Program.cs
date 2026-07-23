@@ -1,10 +1,18 @@
-﻿using Helicopter.Core;
+using Helicopter.Core;
 
 internal class Program
 {
     private static void Main(string[] args)
     {
-        using var game = new Game1();
-        game.Run();
+        try
+        {
+            var game = new Game1();
+            game.Run();
+        }
+        catch (System.Exception ex)
+        {
+            System.Console.WriteLine("CRASH: " + ex.ToString());
+            throw;
+        }
     }
 }

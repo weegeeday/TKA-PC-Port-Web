@@ -163,7 +163,11 @@ namespace Helicopter.Core
 		{
 			base.Exiting += OnExit;
 			this.graphics = new GraphicsDeviceManager(this);
+            this.graphics.GraphicsProfile = GraphicsProfile.HiDef;
+            this.graphics.PreferredBackBufferWidth = 1280;
+            this.graphics.PreferredBackBufferHeight = 720;
 			base.Content.RootDirectory = "Content";
+            this.InactiveSleepTime = System.TimeSpan.Zero;
 
 			if (Game1.IsMobile)
 			{
@@ -230,6 +234,8 @@ namespace Helicopter.Core
 
 		protected override void Initialize()
 		{
+            try {
+            System.Console.WriteLine("DEBUG: Entering Initialize");
             Storage.LoadOptionInfo();
 			if (Game1.IsMobile)
 			{
@@ -240,7 +246,15 @@ namespace Helicopter.Core
 			{
 				Global.SetResolution(Storage.resValue_);
                 Global.SetFullscreenOn(Storage.fullScreenOn_);
-                Resolution.SetResolution((int)Global.resolution.X, (int)Global.resolution.Y, Global.fullscreenOn); //outer resolution
+				Resolution.SetResolution((int)Global.resolution.X, (int)Global.resolution.Y, Global.fullscreenOn);
+			}
+
+            if (!Game1.IsWeb)
+            {
+                this.graphics.PreferredBackBufferWidth = 1280;
+                this.graphics.PreferredBackBufferHeight = 720;
+                this.graphics.IsFullScreen = Global.fullscreenOn;
+                this.graphics.ApplyChanges();
             }
 
             this.renderTarget = new RenderTarget2D(base.GraphicsDevice, 1280, 720, mipMap: false, SurfaceFormat.Color, DepthFormat.None);
@@ -270,19 +284,33 @@ namespace Helicopter.Core
             var selectedLanguage = LocalizationManager.DEFAULT_CULTURE_CODE;
             LocalizationManager.SetCulture(selectedLanguage);
 
+            // if (Game1.IsWeb) Resolution.SetResolution(1280, 720, false);
             base.Initialize();
+            System.Console.WriteLine("DEBUG: Exiting Initialize successfully");
+            } catch (System.Exception ex) { System.Console.WriteLine("INIT CRASH: " + ex); }
 		}
+
+
 
 		protected override void LoadContent()
 		{
+            try {
+            System.Console.WriteLine("DEBUG: Entering LoadContent");
 			spriteBatch = new SpriteBatch(base.GraphicsDevice);
 			this.LoadAssets();
+            System.Console.WriteLine("DEBUG: LoadAssets complete");
 			this.LoadMenus();
+            System.Console.WriteLine("DEBUG: LoadMenus complete");
 			this.LoadBackground();
+            System.Console.WriteLine("DEBUG: LoadBackground complete");
 			this.LoadHelicopter();
+            System.Console.WriteLine("DEBUG: LoadHelicopter complete");
 			this.LoadForeground();
+            System.Console.WriteLine("DEBUG: LoadForeground complete");
 			this.LoadEventInfo(0);
-            this.scoreSystem.scoreInfo = Storage.LoadScoreInfo();
+            System.Console.WriteLine("DEBUG: LoadEventInfo complete");
+            try { this.scoreSystem.scoreInfo = Storage.LoadScoreInfo(); } catch { }
+            System.Console.WriteLine("DEBUG: LoadScoreInfo complete");
             if (!Game1.IsWeb)
             {
                 MediaPlayer.Play(this.songManager.CurrentSong);
@@ -290,7 +318,6 @@ namespace Helicopter.Core
             }
 			if (Game1.IsMobile)
 			{
-                //Global.pixel = new Texture2D(base.GraphicsDevice, 1, 1);
                 MediaPlayer.Volume = 0.10f;
             }
 			else if (Game1.IsDesktop)
@@ -304,6 +331,8 @@ namespace Helicopter.Core
                 Global.SetSoundEffectsVolume(1f);
             }
             base.LoadContent();
+            System.Console.WriteLine("DEBUG: Exiting LoadContent successfully");
+            } catch (System.Exception ex) { System.Console.WriteLine("LOADCONTENT CRASH: " + ex); }
 		}
 
 		protected override void UnloadContent()
@@ -339,6 +368,8 @@ namespace Helicopter.Core
 
         protected override void Update(GameTime gameTime)
 		{
+            try {
+            System.Console.WriteLine($"DEBUG: Entering Update at {gameTime.TotalGameTime.TotalSeconds}");
 			if (this.stageSelectMenu.getCurrentLevel() == 5)
 			{
 				Global.isNyanPack = true;
@@ -358,7 +389,7 @@ namespace Helicopter.Core
                 }
             }
 
-            touchLocations = TouchPanel.GetState();
+            try { touchLocations = TouchPanel.GetState(); } catch { touchLocations = new TouchCollection(); }
             if (IsWeb && touchLocations.Count == 0)
             {
                 // Use mouse position as a synthetic touch point on Web so that
@@ -370,16 +401,27 @@ namespace Helicopter.Core
                 var mouseTouch = new TouchLocation(0, touchState, mouse.Position.ToVector2());
                 touchLocations = new TouchCollection(new[] { mouseTouch });
             }
-            else if (touchLocations.Count == 0)
-                touchLocations = new TouchCollection(del);
+            else if (touchLocations.Count == 0) {
+                var tempDel = new TouchLocation[0];
+                touchLocations = new TouchCollection(tempDel);
+            }
             Rectangle startButton = new(373, 533, 534, 135);
             Rectangle pauseButtonRec = new(50, 50, 64, 64);
 
             Achievements.CheckAchievements(scoreSystem.scoreInfo, scoreSystem.scoreInfo.highScore_);
 
             float num = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (IsWeb && num <= 0f) num = 0.016666f;
 			float elapsedMilliseconds;
-            if (IsDesktop && IsOpenGL)
+            if (IsWeb)
+            {
+                if (Global.webAudioIsPlaying)
+                    Global.webAudioPlayPositionMs += gameTime.ElapsedGameTime.TotalMilliseconds;
+                else
+                    Global.webAudioPlayPositionMs = 0;
+                elapsedMilliseconds = (float)Global.webAudioPlayPositionMs;
+            }
+            else if (IsDesktop && IsOpenGL)
 			{
 				elapsedMilliseconds = (float)MediaPlayer.PlayPosition.TotalMilliseconds - 1000f;
 			}
@@ -593,10 +635,27 @@ namespace Helicopter.Core
 			this.currInput.EndUpdate();
             Global.UpdateVibration(num);
 			base.Update(gameTime);
+            System.Console.WriteLine($"DEBUG: Exiting Update at {gameTime.TotalGameTime.TotalSeconds}");
+            } catch (System.Exception ex) { System.Console.WriteLine("UPDATE CRASH: " + ex); }
+		}
+
+		protected override bool BeginDraw()
+		{
+            System.Console.WriteLine("DEBUG: Entering BeginDraw");
+            try {
+                bool result = base.BeginDraw();
+                System.Console.WriteLine($"DEBUG: Exiting BeginDraw, result: {result}");
+                return result;
+            } catch (System.Exception ex) {
+                System.Console.WriteLine("BEGINDRAW CRASH: " + ex);
+                return false;
+            }
 		}
 
 		protected override void Draw(GameTime gameTime)
 		{
+            try {
+            System.Console.WriteLine($"DEBUG: Entering Draw at {gameTime.TotalGameTime.TotalSeconds}");
             Resolution.BeginDraw();
 			float num = (float)gameTime.ElapsedGameTime.TotalSeconds;
 			this.total += num;
@@ -618,6 +677,20 @@ namespace Helicopter.Core
 			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, null, null, null, null, Resolution.getTransformationMatrix());
 			this.DrawMenu();
 			spriteBatch.End();
+			base.Draw(gameTime);
+            System.Console.WriteLine($"DEBUG: Exiting Draw at {gameTime.TotalGameTime.TotalSeconds}");
+            } catch (System.Exception ex) { System.Console.WriteLine("DRAW CRASH: " + ex); }
+		}
+
+		protected override void EndDraw()
+		{
+            System.Console.WriteLine("DEBUG: Entering EndDraw");
+            try {
+                base.EndDraw();
+                System.Console.WriteLine("DEBUG: Exiting EndDraw");
+            } catch (System.Exception ex) {
+                System.Console.WriteLine("ENDDRAW CRASH: " + ex);
+            }
 		}
 
         #region Load Methods
@@ -630,7 +703,9 @@ namespace Helicopter.Core
 			Global.scoreTexture = base.Content.Load<Texture2D>("Graphics/Score/score");
 			Global.highScoreTexture = base.Content.Load<Texture2D>("Graphics/Score/high");
 			Global.numbersTexture = base.Content.Load<Texture2D>("Graphics/Score/numbers");
-			Global.creditsTex = base.Content.Load<Texture2D>("Graphics/Menu/Credits/credits_bgMenu");
+            if (!Game1.IsWeb) {
+			    Global.creditsTex = base.Content.Load<Texture2D>("Graphics/Menu/Credits/credits_bgMenu");
+            }
 			Global.splashTex = base.Content.Load<Texture2D>("Graphics/Menu/Splash/splash_bgMenu");
 			Global.selectCatTex = base.Content.Load<Texture2D>("Graphics/Menu/KittenSelect/selectCat_bgMenu");
 			Global.selectCatTexAndroid = base.Content.Load<Texture2D>("Graphics/Menu/KittenSelect/selectCat_bgMenu_android");

@@ -298,7 +298,7 @@ namespace Helicopter.Core
 		public static void Draw(SpriteBatch spriteBatch, RenderTarget2D renderTarget, GraphicsDeviceManager graphics, GraphicsDevice graphicsDevice)
 		{
             float adjustedTime = 0f;
-            float time = (float)MediaPlayer.PlayPosition.TotalSeconds;
+            float time = (float)Global.GetPlayPositionTotalSeconds();
             switch (Camera.effectIndex)
             {
                 case 0:
@@ -331,13 +331,13 @@ namespace Helicopter.Core
                 case 2:
 					if (Game1.IsOpenGL)
 					{
-                        if ((float)MediaPlayer.PlayPosition.TotalSeconds > 110.0)
+                        if ((float)Global.GetPlayPositionTotalSeconds() > 110.0)
                         {
-                            adjustedTime = (float)(MediaPlayer.PlayPosition.TotalSeconds % 110.0);
+                            adjustedTime = (float)(Global.GetPlayPositionTotalSeconds() % 110.0);
                         }
                         else
                         {
-                            adjustedTime = (float)MediaPlayer.PlayPosition.TotalSeconds;
+                            adjustedTime = (float)Global.GetPlayPositionTotalSeconds();
                         }
                         Camera.effects[Camera.effectIndex].Parameters["timeInSeconds"].SetValue(adjustedTime);
                     }
@@ -349,13 +349,13 @@ namespace Helicopter.Core
                 case 3:
 					if (Game1.IsOpenGL)
 					{
-                        if ((float)MediaPlayer.PlayPosition.TotalSeconds > 120.0)
+                        if ((float)Global.GetPlayPositionTotalSeconds() > 120.0)
                         {
-                            adjustedTime = (float)(MediaPlayer.PlayPosition.TotalSeconds % 121.0);
+                            adjustedTime = (float)(Global.GetPlayPositionTotalSeconds() % 121.0);
                         }
                         else
                         {
-                            adjustedTime = (float)MediaPlayer.PlayPosition.TotalSeconds;
+                            adjustedTime = (float)Global.GetPlayPositionTotalSeconds();
                         }
                         Camera.effects[Camera.effectIndex].Parameters["timeInSeconds"].SetValue(adjustedTime);
                     }
@@ -367,13 +367,13 @@ namespace Helicopter.Core
                 case 4:
 					if (Game1.IsOpenGL)
 					{
-                        if ((float)MediaPlayer.PlayPosition.TotalSeconds > 198.0)
+                        if ((float)Global.GetPlayPositionTotalSeconds() > 198.0)
                         {
-                            adjustedTime = (float)(MediaPlayer.PlayPosition.TotalSeconds % 198.0);
+                            adjustedTime = (float)(Global.GetPlayPositionTotalSeconds() % 198.0);
                         }
-                        if ((float)MediaPlayer.PlayPosition.TotalSeconds > 77.0)
+                        if ((float)Global.GetPlayPositionTotalSeconds() > 77.0)
                         {
-                            adjustedTime = (float)(MediaPlayer.PlayPosition.TotalSeconds % 77.0);
+                            adjustedTime = (float)(Global.GetPlayPositionTotalSeconds() % 77.0);
                         }
                         Camera.effects[Camera.effectIndex].Parameters["Timer"].SetValue(adjustedTime);
                         Camera.effects[Camera.effectIndex].Parameters["Strength"].SetValue(Camera.strength);

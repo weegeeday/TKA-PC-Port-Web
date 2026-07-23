@@ -124,6 +124,21 @@ namespace Helicopter.Core
 
 		public static Vector2 menuItemVelocity = new Vector2(200f, 134f);
 
+		public static double webAudioPlayPositionMs = 0;
+        public static bool webAudioIsPlaying = false;
+
+		public static double GetPlayPositionTotalSeconds()
+		{
+			if (Game1.IsWeb) return webAudioPlayPositionMs / 1000.0;
+			return Microsoft.Xna.Framework.Media.MediaPlayer.PlayPosition.TotalSeconds;
+		}
+
+		public static double GetPlayPositionTotalMilliseconds()
+		{
+			if (Game1.IsWeb) return webAudioPlayPositionMs;
+			return Microsoft.Xna.Framework.Media.MediaPlayer.PlayPosition.TotalMilliseconds;
+		}
+
 		public static float BPM;
 
 		private static Random random = new Random();
@@ -158,7 +173,7 @@ namespace Helicopter.Core
 		public static void setPixel(GraphicsDevice graphicsDevice)
 		{
 			Color[] data = new Color[1] { Color.White };
-			Global.pixel = new Texture2D(graphicsDevice, 1, 1, mipmap: false, SurfaceFormat.Color);
+			Global.pixel = new Texture2D(graphicsDevice, 1, 1, false, SurfaceFormat.Color);
 			Global.pixel.SetData<Color>(data);
 		}
 

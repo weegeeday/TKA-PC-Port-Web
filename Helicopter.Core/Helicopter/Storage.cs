@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Configuration;
 using System.IO;
 using static System.Environment;
@@ -22,11 +22,8 @@ namespace Helicopter.Core
         public static int FXValue_ = 7;
 
         private static StreamReader reader;
-
         private static StreamWriter writer;
-
-        private static string filePath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-
+        private static string filePath = Game1.IsWeb ? "" : Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         public static void LoadOptionInfo()
         {
             if (Game1.IsMobile)
@@ -58,7 +55,7 @@ namespace Helicopter.Core
                     }
                 }
             }
-            else if (Game1.IsDesktop)
+            else if ((Game1.IsDesktop || Game1.IsWeb))
             {
                 string fullPath = Path.Combine(filePath, "TKA/savedata.txt");
                 if (!File.Exists(fullPath))
@@ -73,7 +70,7 @@ namespace Helicopter.Core
                     }
                 }
                 reader = new StreamReader(fullPath);
-                if (reader.Peek() == 'O')
+                if (reader != null && reader.Peek() == 'O')
                 {
                     reader.ReadLine(); //Read Options
                     try
@@ -104,7 +101,7 @@ namespace Helicopter.Core
             {
                 writer = new StreamWriter(Path.Combine(GetFolderPath(SpecialFolder.ApplicationData), "savedata"));
             }
-            else if (Game1.IsDesktop)
+            else if ((Game1.IsDesktop || Game1.IsWeb))
             {
                 writer = new StreamWriter(Path.Combine(filePath, "TKA/savedata.txt"));
             }
@@ -131,7 +128,7 @@ namespace Helicopter.Core
             {
                 string fullPsath = Path.Combine(GetFolderPath(SpecialFolder.ApplicationData), "savedata");
             }
-            else if (Game1.IsDesktop)
+            else if ((Game1.IsDesktop || Game1.IsWeb))
             {
                 string fullPath = Path.Combine(filePath, "TKA/savedata.txt");
                 if (!File.Exists(fullPath))
@@ -140,7 +137,7 @@ namespace Helicopter.Core
                 }
             }*/
             
-            if (reader.Peek() == 'S')
+            if (reader != null && reader.Peek() == 'S')
             {
                 reader.ReadLine(); //Read Score
                 try
@@ -167,9 +164,9 @@ namespace Helicopter.Core
                     Console.WriteLine(e.Message);
                 }
             }
-            if (Game1.IsDesktop)
+            if ((Game1.IsDesktop || Game1.IsWeb))
             {
-                reader.Close();
+                reader?.Close();
             }
             return result;
         }
@@ -197,9 +194,9 @@ namespace Helicopter.Core
                 Console.WriteLine("Failed to write score data:");
                 Console.WriteLine(e.Message);
             }
-            if (Game1.IsDesktop)
+            if ((Game1.IsDesktop || Game1.IsWeb))
             {
-                writer.Close();
+                writer?.Close();
             }
         }
 

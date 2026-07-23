@@ -1,12 +1,19 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
   <ItemGroup>
-    <!-- PrivateAssets="all" keeps MonoGame types resolvable at compile time for Core
-         without flowing this DesktopGL dependency to consumers (Web, WindowsDX, etc.).
-         Each platform project provides its own MonoGame runtime reference. -->
-    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*" PrivateAssets="all" />
+    <MonoGameContentReference Include="Content\Helicopter.mgcb" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Use Kni Framework for compatibility with Web assembly backend in Web project -->
+    <PackageReference Include="nkast.Xna.Framework" Version="3.14.9001" />
+    <PackageReference Include="nkast.Xna.Framework.Graphics" Version="3.14.9001" />
+    <PackageReference Include="nkast.Xna.Framework.Audio" Version="3.14.9001" />
+    <PackageReference Include="nkast.Xna.Framework.Media" Version="3.14.9001" />
+    <PackageReference Include="nkast.Xna.Framework.Input" Version="3.14.9001" />
+    <PackageReference Include="nkast.Xna.Framework.Game" Version="3.14.9001" />
+    <PackageReference Include="nkast.Xna.Framework.Content.Pipeline.Builder" Version="3.14.9001" />
   </ItemGroup>
 </Project>
