@@ -162,6 +162,8 @@ namespace Helicopter.Core
 		public Game1()
 		{
 			base.Exiting += OnExit;
+            base.Activated += (s, e) => System.Console.WriteLine("DEBUG: Game1 Activated event fired! IsActive is now " + this.IsActive);
+            base.Deactivated += (s, e) => System.Console.WriteLine("DEBUG: Game1 Deactivated event fired! IsActive is now " + this.IsActive);
 			this.graphics = new GraphicsDeviceManager(this);
             this.graphics.GraphicsProfile = GraphicsProfile.HiDef;
             this.graphics.PreferredBackBufferWidth = 1280;
@@ -184,8 +186,29 @@ namespace Helicopter.Core
             }
 			base.IsFixedTimeStep = false;
 
-            graphics.SupportedOrientations = DisplayOrientation.LandscapeLeft | DisplayOrientation.LandscapeRight;
+            			graphics.SupportedOrientations = DisplayOrientation.LandscapeLeft | DisplayOrientation.LandscapeRight;
             Services.AddService(typeof(GraphicsDeviceManager), graphics);
+            if (Game1.IsWeb)
+            {
+                StartWebGameLoop();
+            }
+        }
+
+        private async void StartWebGameLoop()
+        {
+            System.Console.WriteLine("DEBUG: Starting Web Game Loop pump...");
+            while (true)
+            {
+                await System.Threading.Tasks.Task.Delay(16);
+                try
+                {
+                    this.Tick();
+                }
+                catch (System.Exception ex)
+                {
+                    System.Console.WriteLine("PUMP TICK EXCEPTION: " + ex);
+                }
+            }
         }
 
 		private bool WinGLCheck()
@@ -235,7 +258,7 @@ namespace Helicopter.Core
 		protected override void Initialize()
 		{
             try {
-            System.Console.WriteLine("DEBUG: Entering Initialize");
+            System.Console.WriteLine($"DEBUG: Entering Initialize. IsActive={this.IsActive}, GraphicsDevice={(base.GraphicsDevice != null ? base.GraphicsDevice.GetType().Name : "null")}");
             Storage.LoadOptionInfo();
 			if (Game1.IsMobile)
 			{
@@ -264,12 +287,18 @@ namespace Helicopter.Core
                 IsOpenGL = WinGLCheck();
             }
 
-            if (Game1.IsMobile)
+            if (Game1.IsMobile || Game1.IsWeb)
 			{
                 Viewport test = ResetViewport();
                 safeSpace = test.Bounds;
                 touchOffset = new Vector2(test.X, test.Y);
-                resolutionDifference = new Vector2(1280f / test.Width, 720f / test.Height);
+                resolutionDifference = new Vector2(1280f / (test.Width > 0 ? test.Width : 1280), 720f / (test.Height > 0 ? test.Height : 720));
+            }
+            else
+            {
+                safeSpace = new Rectangle(0, 0, 1280, 720);
+                touchOffset = Vector2.Zero;
+                resolutionDifference = Vector2.One;
             }
 
             // Load supported languages and set the default language.
@@ -286,7 +315,7 @@ namespace Helicopter.Core
 
             // if (Game1.IsWeb) Resolution.SetResolution(1280, 720, false);
             base.Initialize();
-            System.Console.WriteLine("DEBUG: Exiting Initialize successfully");
+            System.Console.WriteLine($"DEBUG: Exiting Initialize successfully. IsActive={this.IsActive}");
             } catch (System.Exception ex) { System.Console.WriteLine("INIT CRASH: " + ex); }
 		}
 
@@ -369,7 +398,7 @@ namespace Helicopter.Core
         protected override void Update(GameTime gameTime)
 		{
             try {
-            System.Console.WriteLine($"DEBUG: Entering Update at {gameTime.TotalGameTime.TotalSeconds}");
+            System.Console.WriteLine($"DEBUG: Entering Update at {gameTime.TotalGameTime.TotalSeconds}, IsActive={this.IsActive}, IsFixedTimeStep={this.IsFixedTimeStep}, TargetElapsedTime={this.TargetElapsedTime}, gameState={this.gameState}");
 			if (this.stageSelectMenu.getCurrentLevel() == 5)
 			{
 				Global.isNyanPack = true;
@@ -390,16 +419,25 @@ namespace Helicopter.Core
             }
 
             try { touchLocations = TouchPanel.GetState(); } catch { touchLocations = new TouchCollection(); }
-            if (IsWeb && touchLocations.Count == 0)
+            if (IsWeb)
             {
-                // Use mouse position as a synthetic touch point on Web so that
-                // all existing rectangle hit-tests work without modification.
-                var mouse = Mouse.GetState();
-                var touchState = mouse.LeftButton == ButtonState.Pressed
-                    ? TouchLocationState.Pressed
-                    : TouchLocationState.Released;
-                var mouseTouch = new TouchLocation(0, touchState, mouse.Position.ToVector2());
-                touchLocations = new TouchCollection(new[] { mouseTouch });
+                var vp = GraphicsDevice.Viewport;
+                if (vp.Width > 0 && vp.Height > 0)
+                {
+                    touchOffset = new Vector2(vp.X, vp.Y);
+                    resolutionDifference = new Vector2(1280f / vp.Width, 720f / vp.Height);
+                }
+                if (touchLocations.Count == 0)
+                {
+                    // Use mouse position as a synthetic touch point on Web so that
+                    // all existing rectangle hit-tests work without modification.
+                    var mouse = Mouse.GetState();
+                    var touchState = mouse.LeftButton == ButtonState.Pressed
+                        ? TouchLocationState.Pressed
+                        : TouchLocationState.Released;
+                    var mouseTouch = new TouchLocation(0, touchState, mouse.Position.ToVector2());
+                    touchLocations = new TouchCollection(new[] { mouseTouch });
+                }
             }
             else if (touchLocations.Count == 0) {
                 var tempDel = new TouchLocation[0];
@@ -415,10 +453,23 @@ namespace Helicopter.Core
 			float elapsedMilliseconds;
             if (IsWeb)
             {
-                if (Global.webAudioIsPlaying)
+                if (MediaPlayer.State == MediaState.Playing)
+                {
+                    Global.webAudioIsPlaying = true;
                     Global.webAudioPlayPositionMs += gameTime.ElapsedGameTime.TotalMilliseconds;
+                }
                 else
+                {
+                    Global.webAudioIsPlaying = false;
+                    if (MediaPlayer.State == MediaState.Stopped)
+                    {
+                        Global.webAudioPlayPositionMs = 0;
+                    }
+                }
+                if (this.currEvent == 0 && Global.webAudioPlayPositionMs > 2000.0)
+                {
                     Global.webAudioPlayPositionMs = 0;
+                }
                 elapsedMilliseconds = (float)Global.webAudioPlayPositionMs;
             }
             else if (IsDesktop && IsOpenGL)
@@ -482,17 +533,18 @@ namespace Helicopter.Core
                         break;
                     }
                 }
-                if (this.currInput.IsButtonDown(Buttons.Start) || (startButton.Contains((touchLocations[0].Position - touchOffset) * resolutionDifference) && currInput.IsThingTouched()))
+                if (this.currInput.IsButtonDown(Buttons.Start) 
+                    || this.currInput.IsButtonPressed(Buttons.Start)
+                    || this.currInput.IsButtonPressed(Buttons.A)
+                    || (startButton.Contains((touchLocations[0].Position - touchOffset) * resolutionDifference) && currInput.IsThingTouched())
+                    || (IsWeb && currInput.IsThingTouched()))
                 {
                     if (!Global.playerIndex.HasValue)
                     {
                         Global.playerIndex = PlayerIndex.One;
-                        this.StartWebAudio();
-                        Global.PlayCatSound();
-                        //this.scoreSystem.LoadInfo();
                     }
-                    //Global.PlayCatSound();
-                    //this.scoreSystem.LoadInfo();
+                    this.StartWebAudio();
+                    Global.PlayCatSound();
                     this.gameState = GameState.MAIN_MENU;
                 }
 				break;
@@ -641,7 +693,7 @@ namespace Helicopter.Core
 
 		protected override bool BeginDraw()
 		{
-            System.Console.WriteLine("DEBUG: Entering BeginDraw");
+            System.Console.WriteLine($"DEBUG: Entering BeginDraw. IsActive={this.IsActive}, GraphicsDevice={(base.GraphicsDevice != null ? base.GraphicsDevice.GetType().Name : "null")}");
             try {
                 bool result = base.BeginDraw();
                 System.Console.WriteLine($"DEBUG: Exiting BeginDraw, result: {result}");
@@ -2798,10 +2850,12 @@ namespace Helicopter.Core
 			this.helicopter.Reset();
 			this.bSpriteManager.Reset();
 			this.currEvent = 0;
+			Global.webAudioPlayPositionMs = 0;
 		}
 
 		private void ResetChoreography(int index, bool alternating, bool meat)
 		{
+			Global.webAudioPlayPositionMs = 0;
 			this.ResetLights();
 			this.ResetShootingStars();
 			this.ResetHeart(index, alternating);

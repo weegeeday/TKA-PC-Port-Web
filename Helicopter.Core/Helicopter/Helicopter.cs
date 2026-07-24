@@ -79,7 +79,7 @@ namespace Helicopter.Core
                     this.rotation -= this.rotationVelocity * dt;
                 }
             }
-			else if (Game1.IsDesktop)
+			else if (Game1.IsDesktop || Game1.IsWeb)
 			{
                 if (input.IsButtonDown(Buttons.A) && !this.IsDead())
                 {

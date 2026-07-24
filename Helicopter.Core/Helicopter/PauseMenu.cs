@@ -154,7 +154,7 @@ namespace Helicopter.Core
 			{
                 spriteBatch.Draw(Global.pauseTexAndroid, new Vector2(222f, 82f), (Rectangle?)new Rectangle(0, 0, 836, 556), Color.White);
             }
-			else if (Game1.IsDesktop)
+			else if (Game1.IsDesktop || Game1.IsWeb)
 			{
                 spriteBatch.Draw(Global.pauseTex, new Vector2(222f, 82f), (Rectangle?)new Rectangle(0, 0, 836, 556), Color.White);
             }

@@ -260,7 +260,7 @@ namespace Helicopter.Core
 			{
                 spriteBatch.Draw(Global.selectStageTexAndroid, Vector2.Zero, (Rectangle?)new Rectangle(0, 0, 1280, 720), Color.White);
             }
-			else if (Game1.IsDesktop)
+			else if (Game1.IsDesktop || Game1.IsWeb)
 			{
                 spriteBatch.Draw(Global.selectStageTex, Vector2.Zero, (Rectangle?)new Rectangle(0, 0, 1280, 720), Color.White);
             }

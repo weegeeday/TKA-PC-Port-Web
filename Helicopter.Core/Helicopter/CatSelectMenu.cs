@@ -370,7 +370,7 @@ namespace Helicopter.Core
                 spriteBatch.Draw(Global.selectCatTexAndroid, Vector2.Zero, (Rectangle?)new Rectangle(0, 0, 1280, 118), Color.White);
                 spriteBatch.Draw(Global.selectCatTexAndroid, new Vector2(0f, 428f), (Rectangle?)new Rectangle(0, 428, 1280, 292), Color.White);
             }
-            else if (Game1.IsDesktop)
+            else if (Game1.IsDesktop || Game1.IsWeb)
             {
                 spriteBatch.Draw(Global.selectCatTex, Vector2.Zero, (Rectangle?)new Rectangle(0, 0, 1280, 118), Color.White);
                 spriteBatch.Draw(Global.selectCatTex, new Vector2(0f, 428f), (Rectangle?)new Rectangle(0, 428, 1280, 292), Color.White);

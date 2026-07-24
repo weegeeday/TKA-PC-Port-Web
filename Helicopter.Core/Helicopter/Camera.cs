@@ -302,12 +302,7 @@ namespace Helicopter.Core
             switch (Camera.effectIndex)
             {
                 case 0:
-					if (Game1.IsOpenGL)
-					{
-                        Camera.effects[Camera.effectIndex].Parameters["Offset"].SetValue(new Vector2((float)Math.Cos(Camera.theta), (float)Math.Sin(Camera.theta)));
-                    }
-					else
-					{
+                    {
                         int numSamples = 20;
                         float blurStrength = 0.10f;
                         float shakeAmount = 0.001f * MathF.Sin(time * 40.0f);
@@ -320,88 +315,79 @@ namespace Helicopter.Core
                                 offset[i] = (i - numSamples - 1 / 2.0f) * blurStrength * shakeVelocity;
                             }
                         }
-                        Camera.effects[Camera.effectIndex].Parameters["iTime"].SetValue(time);
-                        Camera.effects[Camera.effectIndex].Parameters["shakeAmount"].SetValue(shakeAmount);
-                        Camera.effects[Camera.effectIndex].Parameters["shakeVelocity"].SetValue(shakeVelocity);
-                        Camera.effects[Camera.effectIndex].Parameters["offset"].SetValue(offset);
+                        var fx = Camera.effects[0];
+                        if (fx != null)
+                        {
+                            if (fx.Parameters["iTime"] != null) fx.Parameters["iTime"].SetValue(time);
+                            if (fx.Parameters["shakeAmount"] != null) fx.Parameters["shakeAmount"].SetValue(shakeAmount);
+                            if (fx.Parameters["shakeVelocity"] != null) fx.Parameters["shakeVelocity"].SetValue(shakeVelocity);
+                            if (fx.Parameters["offset"] != null) fx.Parameters["offset"].SetValue(offset);
+                            if (fx.Parameters["Offset"] != null) fx.Parameters["Offset"].SetValue(new Vector2((float)Math.Cos(Camera.theta), (float)Math.Sin(Camera.theta)));
+                        }
                     }
                     break;
                 case 1:
                     break;
                 case 2:
-					if (Game1.IsOpenGL)
-					{
-                        if ((float)Global.GetPlayPositionTotalSeconds() > 110.0)
+                    {
+                        var fx = Camera.effects[2];
+                        if (fx != null)
                         {
-                            adjustedTime = (float)(Global.GetPlayPositionTotalSeconds() % 110.0);
+                            adjustedTime = ((float)Global.GetPlayPositionTotalSeconds() > 110.0) ? (float)(Global.GetPlayPositionTotalSeconds() % 110.0) : (float)Global.GetPlayPositionTotalSeconds();
+                            if (fx.Parameters["timeInSeconds"] != null) fx.Parameters["timeInSeconds"].SetValue(adjustedTime);
                         }
-                        else
-                        {
-                            adjustedTime = (float)Global.GetPlayPositionTotalSeconds();
-                        }
-                        Camera.effects[Camera.effectIndex].Parameters["timeInSeconds"].SetValue(adjustedTime);
-                    }
-					else
-					{
-                        Camera.effects[Camera.effectIndex].Parameters["timeInSeconds"].SetValue(time);
                     }
                     break;
                 case 3:
-					if (Game1.IsOpenGL)
-					{
-                        if ((float)Global.GetPlayPositionTotalSeconds() > 120.0)
+                    {
+                        var fx = Camera.effects[3];
+                        if (fx != null)
                         {
-                            adjustedTime = (float)(Global.GetPlayPositionTotalSeconds() % 121.0);
+                            adjustedTime = ((float)Global.GetPlayPositionTotalSeconds() > 120.0) ? (float)(Global.GetPlayPositionTotalSeconds() % 121.0) : (float)Global.GetPlayPositionTotalSeconds();
+                            if (fx.Parameters["timeInSeconds"] != null) fx.Parameters["timeInSeconds"].SetValue(adjustedTime);
                         }
-                        else
-                        {
-                            adjustedTime = (float)Global.GetPlayPositionTotalSeconds();
-                        }
-                        Camera.effects[Camera.effectIndex].Parameters["timeInSeconds"].SetValue(adjustedTime);
-                    }
-					else
-					{
-                        Camera.effects[Camera.effectIndex].Parameters["timeInSeconds"].SetValue(time);
                     }
                     break;
                 case 4:
-					if (Game1.IsOpenGL)
-					{
-                        if ((float)Global.GetPlayPositionTotalSeconds() > 198.0)
+                    {
+                        var fx = Camera.effects[4];
+                        if (fx != null)
                         {
-                            adjustedTime = (float)(Global.GetPlayPositionTotalSeconds() % 198.0);
+                            if (fx.Parameters["iTime"] != null) fx.Parameters["iTime"].SetValue(time);
+                            adjustedTime = (float)Global.GetPlayPositionTotalSeconds();
+                            if (fx.Parameters["Timer"] != null) fx.Parameters["Timer"].SetValue(adjustedTime);
+                            if (fx.Parameters["Strength"] != null) fx.Parameters["Strength"].SetValue(Camera.strength);
                         }
-                        if ((float)Global.GetPlayPositionTotalSeconds() > 77.0)
-                        {
-                            adjustedTime = (float)(Global.GetPlayPositionTotalSeconds() % 77.0);
-                        }
-                        Camera.effects[Camera.effectIndex].Parameters["Timer"].SetValue(adjustedTime);
-                        Camera.effects[Camera.effectIndex].Parameters["Strength"].SetValue(Camera.strength);
-                    }
-					else
-					{
-                        Camera.effects[Camera.effectIndex].Parameters["iTime"].SetValue(time);
                     }
                     break;
                 case 5:
-                    Camera.effects[Camera.effectIndex].Parameters["iTime"].SetValue(time);
+                    {
+                        var fx = Camera.effects[5];
+                        if (fx != null && fx.Parameters["iTime"] != null)
+                        {
+                            fx.Parameters["iTime"].SetValue(time);
+                        }
+                    }
                     break;
                 case 6:
-                    float rSpeed = 8.0f;
-                    Camera.effects[Camera.effectIndex].Parameters["iTime"].SetValue(Game1.specialTime);
-                    Camera.effects[Camera.effectIndex].Parameters["rSpeed"].SetValue(rSpeed);
-                    Camera.effects[Camera.effectIndex].Parameters["repeat"].SetValue(repeatFlipNyan_);
-                    Camera.effects[Camera.effectIndex].Parameters["negative"].SetValue(Global.isNyanNegative);
+                    {
+                        var fx = Camera.effects[6];
+                        if (fx != null)
+                        {
+                            float rSpeed = 8.0f;
+                            if (fx.Parameters["iTime"] != null) fx.Parameters["iTime"].SetValue(Game1.specialTime);
+                            if (fx.Parameters["rSpeed"] != null) fx.Parameters["rSpeed"].SetValue(rSpeed);
+                            if (fx.Parameters["repeat"] != null) fx.Parameters["repeat"].SetValue(repeatFlipNyan_);
+                            if (fx.Parameters["negative"] != null) fx.Parameters["negative"].SetValue(Global.isNyanNegative);
+                        }
+                    }
                     break;
                 case 7:
                     break;
             }
             graphicsDevice.SetRenderTarget(null);
             bool scaleFlipped = false;
-			if (Game1.IsMobile)
-			{
-                Resolution.ResetViewport();
-            }
+            Resolution.ResetViewport();
 			graphicsDevice.Clear(Color.Black);
             if (Camera.scale_.Y < 0f)
             {
@@ -411,24 +397,16 @@ namespace Helicopter.Core
             }
 			if (Game1.IsOpenGL)
 			{
-                if (Camera.effectIndex == 0 || Camera.effectIndex == 4)
-                {
-                    spriteBatch.Begin(SpriteSortMode.Deferred, null, null, null, null, Camera.effects[Camera.effectIndex], Resolution.getTransformationMatrix());
-                    spriteBatch.Draw(renderTarget, Vector2.Zero, Color.White * Camera.alpha);
-                    spriteBatch.End();
-                }
-                else if (Camera.effectIndex == 1 || Camera.effectIndex == 2 || Camera.effectIndex == 3 || Camera.effectIndex == 5 || Camera.effectIndex == 6 || Camera.effectIndex == 7)
+                if (Camera.effectIndex >= 0 && Camera.effectIndex <= 7 && Camera.effects[Camera.effectIndex] != null)
                 {
                     spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, Camera.effects[Camera.effectIndex], Resolution.getTransformationMatrix());
-                    //spriteBatch.Draw(Global.pixel, new Rectangle(0, 0, 1280, 720), Color.White);
-                    spriteBatch.Draw((Texture2D)renderTarget, Camera.position_, (Rectangle?)null, Camera.color_, Camera.rotation_, new Vector2(640f, 360f), Camera.scale_, Camera.spriteEffect_, 0f);
+                    spriteBatch.Draw((Texture2D)renderTarget, Camera.position_, (Rectangle?)null, Camera.color_ * Camera.alpha, Camera.rotation_, new Vector2(640f, 360f), Camera.scale_, Camera.spriteEffect_, 0f);
                     spriteBatch.End();
                 }
                 else
                 {
                     spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, null, null, null, null, Resolution.getTransformationMatrix());
-                    //spriteBatch.Draw(Global.pixel, new Rectangle(0, 0, 1280, 720), Color.White);
-                    spriteBatch.Draw((Texture2D)renderTarget, Camera.position_, (Rectangle?)null, Camera.color_, Camera.rotation_, new Vector2(640, 360), Camera.scale_, Camera.spriteEffect_, 0f);
+                    spriteBatch.Draw((Texture2D)renderTarget, Camera.position_, (Rectangle?)null, Camera.color_, Camera.rotation_, new Vector2(640f, 360f), Camera.scale_, Camera.spriteEffect_, 0f);
                     spriteBatch.End();
                 }
             }

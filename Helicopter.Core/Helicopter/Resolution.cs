@@ -1,4 +1,4 @@
-﻿//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 ////License:  The MIT License (MIT)
 ////Copyright (c) 2010 David Amador (http://www.david-amador.com)
 ////
@@ -130,7 +130,7 @@ namespace Helicopter.Core
             _dirtyMatrix = false;
             _ScaleMatrix = Matrix.CreateScale(
                            (float)_Device.GraphicsDevice.Viewport.Width / _VWidth,
-                           (float)_Device.GraphicsDevice.Viewport.Width / _VWidth,
+                           (float)_Device.GraphicsDevice.Viewport.Height / _VHeight,
                            1f);
         }
 
