@@ -22,6 +22,11 @@ chmod +x dotnet-install.sh
 # Clean up the installer script
 rm dotnet-install.sh
 
+# -------------------------------------------------
+# Install the wasm-tools workload (required for Blazor WASM)
+# -------------------------------------------------
+"$DOTNET_DIR/dotnet" workload install wasm-tools --skip-manifest-update
+
 # Configure environment variables for the current session
 export DOTNET_ROOT="$DOTNET_DIR"
 export PATH="$DOTNET_DIR:$PATH"
@@ -33,6 +38,13 @@ echo "===================================="
 echo "Building and publishing Helicopter.Web..."
 # Publish the project with Release configuration to the output directory
 dotnet publish "$SCRIPT_DIR/Helicopter.Web/Helicopter.Web.csproj" -c Release -o "$PUBLISH_DIR"
+
+# -------------------------------------------------
+# Optional: copy a favicon so browsers don’t 404
+# -------------------------------------------------
+if [ -f "$SCRIPT_DIR/Helicopter.Core/icon.ico" ]; then
+  cp "$SCRIPT_DIR/Helicopter.Core/icon.ico" "$PUBLISH_DIR/wwwroot/favicon.ico"
+fi
 
 echo "===================================="
 echo "Publish successful!"
