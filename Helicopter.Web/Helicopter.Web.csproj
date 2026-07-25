@@ -3,6 +3,12 @@
     <TargetFramework>net8.0</TargetFramework>
     <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
+  <!-- Prevent the IL linker from trimming Blazor hosting assemblies.
+       The KNI/MonoGame entry point doesn't reference Blazor components directly,
+       but the BlazorWebAssembly SDK requires them at runtime to bootstrap. -->
+  <ItemGroup>
+    <TrimmerRootAssembly Include="Microsoft.AspNetCore.Components.WebAssembly" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Helicopter.Core\Helicopter.Core.csproj" />
   </ItemGroup>
