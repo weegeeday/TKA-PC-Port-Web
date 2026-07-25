@@ -5,7 +5,7 @@
 /platform:WebGL
 /config:
 /profile:Reach
-/compress:False
+/compress:True
 
 #-------------------------------- References --------------------------------#
 
