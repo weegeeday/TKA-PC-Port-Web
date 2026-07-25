@@ -1,0 +1,3 @@
+name = "TKA-PC-Port-Web"
+pages_build_output_dir = "dist/wwwroot"
+compatibility_date = "2026-07-24"
