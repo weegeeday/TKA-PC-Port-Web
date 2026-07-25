@@ -24,3 +24,6 @@ Helicopter.Web/bin/
 Helicopter.Web/obj/
 /bin/Debug/net8.0-android34.0
 /obj
+/dist
+/.dotnet-sdk
+/dotnet-install.sh
