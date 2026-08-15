@@ -9,6 +9,26 @@ internal class Program
         try
         {
             System.Console.WriteLine("DEBUG: Program.Main starting...");
+            Global.OnRedirectToQuitUrl = () =>
+            {
+                try
+                {
+                    var win = nkast.Wasm.Dom.Window.Current;
+                    if (win != null)
+                    {
+                        var genericMethod = typeof(nkast.Wasm.Dom.JSObject).GetMethod("InvokeRet", new[] { typeof(string) });
+                        if (genericMethod != null)
+                        {
+                            var closed = genericMethod.MakeGenericMethod(typeof(object));
+                            closed.Invoke(win, new object[] { "redirectToQuitUrl" });
+                        }
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    System.Console.WriteLine("Redirect error: " + ex);
+                }
+            };
             _game = new Game1();
             System.Console.WriteLine("DEBUG: Game1 instance created successfully");
             _game.Run();

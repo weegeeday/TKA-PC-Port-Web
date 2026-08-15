@@ -20,6 +20,11 @@ namespace Helicopter.Core
 			this.menuItems_ = new List<MenuItem>();
 		}
 
+		public void ResetMenuIndex()
+		{
+			this.index_ = 0;
+		}
+
 		protected void AddMenuItem(MenuItem menuItem)
 		{
 			this.menuItems_.Add(menuItem);

@@ -54,54 +54,37 @@ namespace Helicopter.Core
 		public void HandleInput(InputState input, Tunnel tunnel, ScoreSystem scoreSystem, float dt)
 		{
 			this.acceleration.Y = 2250f;
-			
-			if (Game1.IsMobile)
+
+			Rectangle pauseButtonRec = new(20, 20, 120, 120);
+			Vector2 touchPos = Game1.GetTouchPosition();
+			bool isTouchingScreen = Game1.touchLocations.Count > 0 &&
+				(Game1.touchLocations[0].State == Microsoft.Xna.Framework.Input.Touch.TouchLocationState.Pressed ||
+				 Game1.touchLocations[0].State == Microsoft.Xna.Framework.Input.Touch.TouchLocationState.Moved);
+			bool isMousePressed = Game1.IsWeb && Microsoft.Xna.Framework.Input.Mouse.GetState().LeftButton == Microsoft.Xna.Framework.Input.ButtonState.Pressed;
+			bool isPauseButtonClicked = (isTouchingScreen || isMousePressed) && pauseButtonRec.Contains(touchPos);
+
+			bool flyInput = input.IsButtonDown(Buttons.A) || ((isTouchingScreen || isMousePressed) && !isPauseButtonClicked);
+
+			if (flyInput && !this.IsDead())
 			{
-                Rectangle gameScreen = new(0, 0, 1280, 720);
-                if ((input.IsButtonDown(Buttons.A) || (gameScreen.Contains((Game1.touchLocations[0].Position - Game1.touchOffset) * Game1.resolutionDifference) && Game1.touchLocations[0].State == Microsoft.Xna.Framework.Input.Touch.TouchLocationState.Moved)) && !this.IsDead())
-                {
-                    if (!tunnel.IsOn())
-                    {
-                        tunnel.TurnOn();
-                        scoreSystem.Begin();
-                        this.velocity = Vector2.Zero;
-                        this.rotation += this.rotationVelocity * dt;
-                        this.acceleration.Y -= 4500f;
-                    }
-                    else
-                    {
-                        this.rotation += this.rotationVelocity * dt;
-                        this.acceleration.Y -= 4500f;
-                    }
-                }
-                else if (tunnel.IsOn())
-                {
-                    this.rotation -= this.rotationVelocity * dt;
-                }
-            }
-			else if (Game1.IsDesktop || Game1.IsWeb)
+				if (!tunnel.IsOn())
+				{
+					tunnel.TurnOn();
+					scoreSystem.Begin();
+					this.velocity = Vector2.Zero;
+					this.rotation += this.rotationVelocity * dt;
+					this.acceleration.Y -= 4500f;
+				}
+				else
+				{
+					this.rotation += this.rotationVelocity * dt;
+					this.acceleration.Y -= 4500f;
+				}
+			}
+			else if (tunnel.IsOn())
 			{
-                if (input.IsButtonDown(Buttons.A) && !this.IsDead())
-                {
-                    if (!tunnel.IsOn())
-                    {
-                        tunnel.TurnOn();
-                        scoreSystem.Begin();
-                        this.velocity = Vector2.Zero;
-                        this.rotation += this.rotationVelocity * dt;
-                        this.acceleration.Y -= 4500f;
-                    }
-                    else
-                    {
-                        this.rotation += this.rotationVelocity * dt;
-                        this.acceleration.Y -= 4500f;
-                    }
-                }
-                else if (tunnel.IsOn())
-                {
-                    this.rotation -= this.rotationVelocity * dt;
-                }
-            }
+				this.rotation -= this.rotationVelocity * dt;
+			}
 		}
 
 		public void Update(float dt, Tunnel tunnel, ScoreSystem scoreSystem)

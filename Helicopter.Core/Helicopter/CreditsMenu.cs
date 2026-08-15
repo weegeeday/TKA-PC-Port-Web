@@ -57,7 +57,8 @@ namespace Helicopter.Core
 				this.scrollPosition_ = new Vector2(this.scrollPosition_.X, 720f - num);
 			}
 			base.Update(dt, currInput);
-            if (currInput.IsButtonPressed(Buttons.A) || currInput.IsButtonPressed(Buttons.B) || (credits_back.Contains((Game1.touchLocations[0].Position - Game1.touchOffset) * Game1.resolutionDifference) && currInput.IsThingTouched()))
+            Vector2 touchPos = Game1.GetTouchPosition();
+            if (currInput.IsButtonPressed(Buttons.A) || currInput.IsButtonPressed(Buttons.B) || (credits_back.Contains(touchPos) && currInput.IsThingTouched()))
             {
                 Global.PlayCatSound();
 				gameState = GameState.OPTIONS;

@@ -476,7 +476,7 @@ namespace Helicopter.Core
 					break;
 				case 2:
 					Camera.effectIndex = 4;
-					Camera.strength = 0.01f;
+					Camera.strength = 0.5f;
 					Camera.alpha = 1f;
 					Camera.alphaMin = 1f;
 					Camera.alphaMax = 1f;
@@ -488,14 +488,7 @@ namespace Helicopter.Core
 					Camera.alphaMax = 0.6f;
 					Camera.alphaRate = 0f;
 					Camera.thetaRate = 18.2212372f;
-					if (Game1.IsOpenGL)
-					{
-                        Camera.effectIndex = 0;
-                    }
-					else
-					{
-                        Camera.effectIndex = 5;
-                    }
+					Camera.effectIndex = 5;
 					break;
 				case 4:
 					Camera.effectIndex = 3;

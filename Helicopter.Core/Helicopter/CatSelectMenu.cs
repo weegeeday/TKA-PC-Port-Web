@@ -42,7 +42,7 @@ namespace Helicopter.Core
 			this.SetCats(currentLevel);
 			base.Update(dt, currInput);
 
-            touch = (Game1.touchLocations[0].Position - Game1.touchOffset) * Game1.resolutionDifference;
+            touch = Game1.GetTouchPosition();
 
             if (currentLevel == 0)
             {
@@ -50,49 +50,16 @@ namespace Helicopter.Core
                 {
                     if (fiveCatBox[i].Contains(touch) && currInput.IsThingTouched())
                     {
-                        switch (i)
+                        bool isUnlocked = (i == 0 || i == 1) || Global.debugCatUnlock
+                            || (i == 2 && scoreSystem.seaFortyUnlocked)
+                            || (i == 3 && scoreSystem.seaSixtyUnlocked)
+                            || (i == 4 && scoreSystem.seaEightyUnlocked);
+                        if (isUnlocked)
                         {
-                            case 0:
-                                base.index_ = i + 1;
-                                Global.PlayCatSound();
-                                this.currentCat = this.startCatIndex_[currentLevel] + base.index_ - 1;
-                                gameState = GameState.PLAY;
-                                break;
-                            case 1:
-                                base.index_ = i + 1;
-                                Global.PlayCatSound();
-                                this.currentCat = this.startCatIndex_[currentLevel] + base.index_ - 1;
-                                gameState = GameState.PLAY;
-                                break;
-                            case 2:
-                                if (scoreSystem.seaFortyUnlocked)
-                                {
-                                    base.index_ = i + 1;
-                                    Global.PlayCatSound();
-                                    this.currentCat = this.startCatIndex_[currentLevel] + base.index_ - 1;
-                                    gameState = GameState.PLAY;
-                                }
-                                break;
-                            case 3:
-                                if (scoreSystem.seaSixtyUnlocked)
-                                {
-                                    base.index_ = i + 1;
-                                    Global.PlayCatSound();
-                                    this.currentCat = this.startCatIndex_[currentLevel] + base.index_ - 1;
-                                    gameState = GameState.PLAY;
-                                }
-                                break;
-                            case 4:
-                                if (scoreSystem.seaEightyUnlocked)
-                                {
-                                    base.index_ = i + 1;
-                                    Global.PlayCatSound();
-                                    this.currentCat = this.startCatIndex_[currentLevel] + base.index_ - 1;
-                                    gameState = GameState.PLAY;
-                                }
-                                break;
-                            default:
-                                break;
+                            base.index_ = i + 1;
+                            Global.PlayCatSound();
+                            this.currentCat = this.startCatIndex_[currentLevel] + base.index_ - 1;
+                            gameState = GameState.PLAY;
                         }
                     }
                 }
@@ -103,43 +70,16 @@ namespace Helicopter.Core
                 {
                     if (fourCatBox[i].Contains(touch) && currInput.IsThingTouched())
                     {
-                        switch (i)
+                        bool isUnlocked = (i == 0) || Global.debugCatUnlock
+                            || (i == 1 && ((scoreSystem.cloudFortyUnlocked && currentLevel == 1) || (scoreSystem.lavaFortyUnlocked && currentLevel == 2) || (scoreSystem.meatFortyUnlocked && currentLevel == 3)))
+                            || (i == 2 && ((scoreSystem.cloudSixtyUnlocked && currentLevel == 1) || (scoreSystem.lavaSixtyUnlocked && currentLevel == 2) || (scoreSystem.meatSixtyUnlocked && currentLevel == 3)))
+                            || (i == 3 && ((scoreSystem.cloudEightyUnlocked && currentLevel == 1) || (scoreSystem.lavaEightyUnlocked && currentLevel == 2) || (scoreSystem.meatEightyUnlocked && currentLevel == 3)));
+                        if (isUnlocked)
                         {
-                            case 0:
-                                base.index_ = i + 1;
-                                Global.PlayCatSound();
-                                this.currentCat = this.startCatIndex_[currentLevel] + base.index_ - 1;
-                                gameState = GameState.PLAY;
-                                break;
-                            case 1:
-                                if ((scoreSystem.cloudFortyUnlocked && currentLevel == 1) || (scoreSystem.lavaFortyUnlocked && currentLevel == 2) || (scoreSystem.meatFortyUnlocked && currentLevel == 3))
-                                {
-                                    base.index_ = i + 1;
-                                    Global.PlayCatSound();
-                                    this.currentCat = this.startCatIndex_[currentLevel] + base.index_ - 1;
-                                    gameState = GameState.PLAY;
-                                }
-                                break;
-                            case 2:
-                                if ((scoreSystem.cloudSixtyUnlocked && currentLevel == 1) || (scoreSystem.lavaSixtyUnlocked && currentLevel == 2) || (scoreSystem.meatSixtyUnlocked && currentLevel == 3))
-                                {
-                                    base.index_ = i + 1;
-                                    Global.PlayCatSound();
-                                    this.currentCat = this.startCatIndex_[currentLevel] + base.index_ - 1;
-                                    gameState = GameState.PLAY;
-                                }
-                                break;
-                            case 3:
-                                if ((scoreSystem.cloudEightyUnlocked && currentLevel == 1) || (scoreSystem.lavaEightyUnlocked && currentLevel == 2) || (scoreSystem.meatEightyUnlocked && currentLevel == 3))
-                                {
-                                    base.index_ = i + 1;
-                                    Global.PlayCatSound();
-                                    this.currentCat = this.startCatIndex_[currentLevel] + base.index_ - 1;
-                                    gameState = GameState.PLAY;
-                                }
-                                break;
-                            default:
-                                break;
+                            base.index_ = i + 1;
+                            Global.PlayCatSound();
+                            this.currentCat = this.startCatIndex_[currentLevel] + base.index_ - 1;
+                            gameState = GameState.PLAY;
                         }
                     }
                 }
@@ -150,34 +90,15 @@ namespace Helicopter.Core
                 {
                     if (threeCatBox[i].Contains(touch) && currInput.IsThingTouched())
                     {
-                        switch (i)
+                        bool isUnlocked = (i == 0) || Global.debugCatUnlock
+                            || (i == 1 && ((scoreSystem.ronFortyUnlocked && currentLevel == 4) || (scoreSystem.nyanFortyUnlocked && currentLevel == 5)))
+                            || (i == 2 && ((scoreSystem.ronSixtyUnlocked && currentLevel == 4) || (scoreSystem.nyanSixtyUnlocked && currentLevel == 5)));
+                        if (isUnlocked)
                         {
-                            case 0:
-                                base.index_ = i + 1;
-                                Global.PlayCatSound();
-                                this.currentCat = this.startCatIndex_[currentLevel] + base.index_ - 1;
-                                gameState = GameState.PLAY;
-                                break;
-                            case 1:
-                                if ((scoreSystem.ronFortyUnlocked && currentLevel == 4) || (scoreSystem.nyanFortyUnlocked && currentLevel == 5))
-                                {
-                                    base.index_ = i + 1;
-                                    Global.PlayCatSound();
-                                    this.currentCat = this.startCatIndex_[currentLevel] + base.index_ - 1;
-                                    gameState = GameState.PLAY;
-                                }
-                                break;
-                            case 2:
-                                if ((scoreSystem.ronSixtyUnlocked && currentLevel == 4) || (scoreSystem.nyanSixtyUnlocked && currentLevel == 5))
-                                {
-                                    base.index_ = i + 1;
-                                    Global.PlayCatSound();
-                                    this.currentCat = this.startCatIndex_[currentLevel] + base.index_ - 1;
-                                    gameState = GameState.PLAY;
-                                }
-                                break;
-                            default:
-                                break;
+                            base.index_ = i + 1;
+                            Global.PlayCatSound();
+                            this.currentCat = this.startCatIndex_[currentLevel] + base.index_ - 1;
+                            gameState = GameState.PLAY;
                         }
                     }
                 }

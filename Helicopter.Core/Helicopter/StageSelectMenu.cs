@@ -92,7 +92,8 @@ namespace Helicopter.Core
 				this.arrowOffsetRateX = 0f - this.arrowOffsetRateX;
 			}
 
-            if (arrow_right.Contains((Game1.touchLocations[0].Position - Game1.touchOffset) * Game1.resolutionDifference) && currInput.IsThingTouched() && startingIndex != 3)
+            Vector2 touchPos = Game1.GetTouchPosition();
+            if (arrow_right.Contains(touchPos) && currInput.IsThingTouched() && startingIndex != 3)
             {
                 base.index_ = 2;
                 this.startingIndex++;
@@ -101,7 +102,7 @@ namespace Helicopter.Core
                     base.menuItems_[i] = new MenuItem(Global.selectStageTex, this.itemRects[i + this.startingIndex], this.itemPositions[i]);
                 }
             }
-            if (arrow_left.Contains((Game1.touchLocations[0].Position - Game1.touchOffset) * Game1.resolutionDifference) && currInput.IsThingTouched() && startingIndex != 0)
+            if (arrow_left.Contains(touchPos) && currInput.IsThingTouched() && startingIndex != 0)
             {
                 base.index_ = 0;
                 this.startingIndex--;
@@ -112,67 +113,79 @@ namespace Helicopter.Core
 
             }
 
-            if (stage1.Contains((Game1.touchLocations[0].Position - Game1.touchOffset) * Game1.resolutionDifference) && currInput.IsThingTouched())
+            if (stage1.Contains(touchPos))
             {
-                switch (this.startingIndex)
+                base.index_ = 0;
+                if (currInput.IsThingTouched())
                 {
-                    case 0: this.currentLevel = 0; break;
-                    case 1: this.currentLevel = 4; break;
-                    case 2: this.currentLevel = 3; break;
-                    case 3: this.currentLevel = 2; break;
-                }
-                this.ResetMenu();
-                Global.PlayCatSound();
-                if (this.lastGameState == GameState.MAIN_MENU)
-                {
-                    gameState = GameState.CAT_SELECT;
-                }
-                else
-                {
-                    gameState = GameState.PLAY;
+                    switch (this.startingIndex)
+                    {
+                        case 0: this.currentLevel = 0; break;
+                        case 1: this.currentLevel = 4; break;
+                        case 2: this.currentLevel = 3; break;
+                        case 3: this.currentLevel = 2; break;
+                    }
+                    this.ResetMenu();
+                    Global.PlayCatSound();
+                    if (this.lastGameState == GameState.MAIN_MENU)
+                    {
+                        gameState = GameState.CAT_SELECT;
+                    }
+                    else
+                    {
+                        gameState = GameState.PLAY;
+                    }
                 }
             }
-            else if (stage2.Contains((Game1.touchLocations[0].Position - Game1.touchOffset) * Game1.resolutionDifference) && currInput.IsThingTouched())
+            else if (stage2.Contains(touchPos))
             {
-                switch (this.startingIndex)
+                base.index_ = 1;
+                if (currInput.IsThingTouched())
                 {
-                    case 0: this.currentLevel = 4; break;
-                    case 1: this.currentLevel = 3; break;
-                    case 2: this.currentLevel = 2; break;
-                    case 3: this.currentLevel = 1; break;
-                }
-                this.ResetMenu();
-                Global.PlayCatSound();
-                if (this.lastGameState == GameState.MAIN_MENU)
-                {
-                    gameState = GameState.CAT_SELECT;
-                }
-                else
-                {
-                    gameState = GameState.PLAY;
+                    switch (this.startingIndex)
+                    {
+                        case 0: this.currentLevel = 4; break;
+                        case 1: this.currentLevel = 3; break;
+                        case 2: this.currentLevel = 2; break;
+                        case 3: this.currentLevel = 1; break;
+                    }
+                    this.ResetMenu();
+                    Global.PlayCatSound();
+                    if (this.lastGameState == GameState.MAIN_MENU)
+                    {
+                        gameState = GameState.CAT_SELECT;
+                    }
+                    else
+                    {
+                        gameState = GameState.PLAY;
+                    }
                 }
             }
-            else if (stage3.Contains((Game1.touchLocations[0].Position - Game1.touchOffset) * Game1.resolutionDifference) && currInput.IsThingTouched())
+            else if (stage3.Contains(touchPos))
             {
-                switch (this.startingIndex)
+                base.index_ = 2;
+                if (currInput.IsThingTouched())
                 {
-                    case 0: this.currentLevel = 3; break;
-                    case 1: this.currentLevel = 2; break;
-                    case 2: this.currentLevel = 1; break;
-                    case 3: this.currentLevel = 5; break;
-                }
-                this.ResetMenu();
-                Global.PlayCatSound();
-                if (this.lastGameState == GameState.MAIN_MENU)
-                {
-                    gameState = GameState.CAT_SELECT;
-                }
-                else
-                {
-                    gameState = GameState.PLAY;
+                    switch (this.startingIndex)
+                    {
+                        case 0: this.currentLevel = 3; break;
+                        case 1: this.currentLevel = 2; break;
+                        case 2: this.currentLevel = 1; break;
+                        case 3: this.currentLevel = 5; break;
+                    }
+                    this.ResetMenu();
+                    Global.PlayCatSound();
+                    if (this.lastGameState == GameState.MAIN_MENU)
+                    {
+                        gameState = GameState.CAT_SELECT;
+                    }
+                    else
+                    {
+                        gameState = GameState.PLAY;
+                    }
                 }
             }
-            if (back.Contains((Game1.touchLocations[0].Position - Game1.touchOffset) * Game1.resolutionDifference) && currInput.IsThingTouched())
+            if (back.Contains(touchPos) && currInput.IsThingTouched())
             {
                 Global.PlayCatSound();
                 this.ResetMenu();

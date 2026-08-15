@@ -127,16 +127,75 @@ namespace Helicopter.Core
 		public static double webAudioPlayPositionMs = 0;
         public static bool webAudioIsPlaying = false;
 
+		public static double GetWebAudioPosition()
+		{
+			if (!Game1.IsWeb) return -1;
+			try
+			{
+				var win = nkast.Wasm.Dom.Window.Current;
+				if (win != null)
+				{
+					var genericMethod = typeof(nkast.Wasm.Dom.JSObject).GetMethod("InvokeRet", new[] { typeof(string) });
+					if (genericMethod != null)
+					{
+						var closed = genericMethod.MakeGenericMethod(typeof(double));
+						double res = (double)closed.Invoke(win, new object[] { "getWebAudioPlayPositionMs" });
+						if (res >= 0) return res;
+					}
+				}
+			}
+			catch { }
+			return -1;
+		}
+
+		public static void ResetWebAudioToStart()
+		{
+			if (!Game1.IsWeb) return;
+			try
+			{
+				var win = nkast.Wasm.Dom.Window.Current;
+				if (win != null)
+				{
+					var genericMethod = typeof(nkast.Wasm.Dom.JSObject).GetMethod("Invoke", new[] { typeof(string) });
+					if (genericMethod != null)
+					{
+						genericMethod.Invoke(win, new object[] { "resetWebAudioToStart" });
+					}
+				}
+			}
+			catch { }
+		}
+
 		public static double GetPlayPositionTotalSeconds()
 		{
-			if (Game1.IsWeb) return webAudioPlayPositionMs / 1000.0;
-			return Microsoft.Xna.Framework.Media.MediaPlayer.PlayPosition.TotalSeconds;
+			if (Game1.IsWeb)
+			{
+				double ms = GetWebAudioPosition();
+				if (ms >= 0) return ms / 1000.0;
+				return webAudioPlayPositionMs / 1000.0;
+			}
+			try { return Microsoft.Xna.Framework.Media.MediaPlayer.PlayPosition.TotalSeconds; } catch { return 0; }
 		}
 
 		public static double GetPlayPositionTotalMilliseconds()
 		{
-			if (Game1.IsWeb) return webAudioPlayPositionMs;
-			return Microsoft.Xna.Framework.Media.MediaPlayer.PlayPosition.TotalMilliseconds;
+			if (Game1.IsWeb)
+			{
+				double ms = GetWebAudioPosition();
+				if (ms >= 0) return ms;
+				return webAudioPlayPositionMs;
+			}
+			try { return Microsoft.Xna.Framework.Media.MediaPlayer.PlayPosition.TotalMilliseconds; } catch { return 0; }
+		}
+
+		public static Action OnRedirectToQuitUrl;
+
+		public static void RedirectToQuitUrl()
+		{
+			if (Game1.IsWeb)
+			{
+				OnRedirectToQuitUrl?.Invoke();
+			}
 		}
 
 		public static float BPM;

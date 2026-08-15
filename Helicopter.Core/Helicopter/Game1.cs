@@ -33,6 +33,7 @@ namespace Helicopter.Core
 		private float splashScreenTime = 1f;
 
 		private GameState gameState = GameState.OPENING;
+		private GameState prevGameState = GameState.OPENING;
 
 		private OpeningMenu openingMenu;
 		private PauseMenu pauseMenu;
@@ -159,8 +160,118 @@ namespace Helicopter.Core
 
 		private bool webAudioStarted = false;
 
+        public static Game1 Instance { get; private set; }
+
+        public static Vector2 GetVirtualTouchPoint(Vector2 rawPoint)
+        {
+            if (Instance == null || Instance.GraphicsDevice == null) return rawPoint;
+            var vp = Instance.GraphicsDevice.Viewport;
+            float w = vp.Width;
+            float h = vp.Height;
+            if (w <= 0 || h <= 0) return rawPoint;
+
+            float targetAspect = 1280f / 720f;
+            float windowAspect = w / h;
+
+            float viewW, viewH, offsetX, offsetY;
+            if (windowAspect > targetAspect)
+            {
+                viewH = h;
+                viewW = h * targetAspect;
+                offsetX = (w - viewW) / 2f;
+                offsetY = 0f;
+            }
+            else
+            {
+                viewW = w;
+                viewH = w / targetAspect;
+                offsetX = 0f;
+                offsetY = (h - viewH) / 2f;
+            }
+
+            float vx = (rawPoint.X - offsetX) * (1280f / viewW);
+            float vy = (rawPoint.Y - offsetY) * (720f / viewH);
+            return new Vector2(vx, vy);
+        }
+
+        public static (float width, float height) GetCanvasSize()
+        {
+            if (IsWeb)
+            {
+                try
+                {
+                    var win = nkast.Wasm.Dom.Window.Current;
+                    if (win != null && win.InnerWidth > 0 && win.InnerHeight > 0)
+                    {
+                        return (win.InnerWidth, win.InnerHeight);
+                    }
+                }
+                catch { }
+            }
+
+            if (Instance != null && Instance.Window != null)
+            {
+                var bounds = Instance.Window.ClientBounds;
+                if (bounds.Width > 0 && bounds.Height > 0)
+                {
+                    return (bounds.Width, bounds.Height);
+                }
+            }
+            return (1280f, 720f);
+        }
+
+        public static Vector2 GetTouchPosition()
+        {
+            Vector2 rawPos = Vector2.Zero;
+            if (touchLocations.Count > 0 && touchLocations[0].Position != Vector2.Zero)
+            {
+                rawPos = touchLocations[0].Position;
+            }
+            else
+            {
+                rawPos = Mouse.GetState().Position.ToVector2();
+            }
+
+            if ((IsWeb || IsMobile) && Instance != null)
+            {
+                var (canvasW, canvasH) = GetCanvasSize();
+                if (canvasW > 0 && canvasH > 0)
+                {
+                    float targetAspect = 1280f / 720f;
+                    float windowAspect = canvasW / canvasH;
+
+                    float viewW, viewH, offsetX, offsetY;
+                    if (windowAspect > targetAspect)
+                    {
+                        // Pillarboxing (black bars on left and right)
+                        viewH = canvasH;
+                        viewW = canvasH * targetAspect;
+                        offsetX = (canvasW - viewW) / 2f;
+                        offsetY = 0f;
+                    }
+                    else
+                    {
+                        // Letterboxing (black bars on top and bottom)
+                        viewW = canvasW;
+                        viewH = canvasW / targetAspect;
+                        offsetX = 0f;
+                        offsetY = (canvasH - viewH) / 2f;
+                    }
+
+                    float vx = (rawPos.X - offsetX) * (1280f / viewW);
+                    float vy = (rawPos.Y - offsetY) * (720f / viewH);
+                    return new Vector2(
+                        MathHelper.Clamp(vx, 0f, 1280f),
+                        MathHelper.Clamp(vy, 0f, 720f)
+                    );
+                }
+            }
+            return rawPos;
+        }
+
 		public Game1()
 		{
+			Instance = this;
 			base.Exiting += OnExit;
             base.Activated += (s, e) => System.Console.WriteLine("DEBUG: Game1 Activated event fired! IsActive is now " + this.IsActive);
             base.Deactivated += (s, e) => System.Console.WriteLine("DEBUG: Game1 Deactivated event fired! IsActive is now " + this.IsActive);
@@ -389,16 +500,22 @@ namespace Helicopter.Core
         {
             if (Game1.IsWeb && !this.webAudioStarted)
             {
-                this.webAudioStarted = true;
-                MediaPlayer.IsRepeating = true;
-                MediaPlayer.Play(this.songManager.CurrentSong);
+                try
+                {
+                    this.webAudioStarted = true;
+                    MediaPlayer.IsRepeating = true;
+                    MediaPlayer.Play(this.songManager.CurrentSong);
+                }
+                catch (System.Exception)
+                {
+                    this.webAudioStarted = false; // Retry after user gesture on next frame
+                }
             }
         }
 
         protected override void Update(GameTime gameTime)
 		{
             try {
-            System.Console.WriteLine($"DEBUG: Entering Update at {gameTime.TotalGameTime.TotalSeconds}, IsActive={this.IsActive}, IsFixedTimeStep={this.IsFixedTimeStep}, TargetElapsedTime={this.TargetElapsedTime}, gameState={this.gameState}");
 			if (this.stageSelectMenu.getCurrentLevel() == 5)
 			{
 				Global.isNyanPack = true;
@@ -443,8 +560,31 @@ namespace Helicopter.Core
                 var tempDel = new TouchLocation[0];
                 touchLocations = new TouchCollection(tempDel);
             }
+            if (this.prevGameState != this.gameState)
+            {
+                this.currInput.FlushInput();
+                switch (this.gameState)
+                {
+                    case GameState.MAIN_MENU:
+                        if (this.mainMenu != null) this.mainMenu.ResetMenuIndex();
+                        break;
+                    case GameState.STAGE_SELECT:
+                        if (this.stageSelectMenu != null) this.stageSelectMenu.ResetMenuIndex();
+                        break;
+                    case GameState.CAT_SELECT:
+                        if (this.catSelectMenu != null) this.catSelectMenu.ResetMenuIndex();
+                        break;
+                    case GameState.OPTIONS:
+                        if (this.optionsMenu != null) this.optionsMenu.ResetMenuIndex();
+                        break;
+                    case GameState.PAUSE:
+                        if (this.pauseMenu != null) this.pauseMenu.ResetMenuIndex();
+                        break;
+                }
+                this.prevGameState = this.gameState;
+            }
             Rectangle startButton = new(373, 533, 534, 135);
-            Rectangle pauseButtonRec = new(50, 50, 64, 64);
+            Rectangle pauseButtonRec = new(20, 20, 120, 120);
 
             Achievements.CheckAchievements(scoreSystem.scoreInfo, scoreSystem.scoreInfo.highScore_);
 
@@ -453,10 +593,36 @@ namespace Helicopter.Core
 			float elapsedMilliseconds;
             if (IsWeb)
             {
-                if (MediaPlayer.State == MediaState.Playing)
+                double mediaMs = Global.GetWebAudioPosition();
+                float songDuration = this.GetSongDurationMs(this.stageSelectMenu != null ? this.stageSelectMenu.getCurrentLevel() : 0);
+
+                if (mediaMs >= 0)
+                {
+                    if (mediaMs < (Global.webAudioPlayPositionMs - 10000.0) && Global.webAudioPlayPositionMs > 30000.0)
+                    {
+                        System.Console.WriteLine($"[TKA LOOP RESET] Loop wrap detected! mediaMs={mediaMs:F1}, prevWebAudioMs={Global.webAudioPlayPositionMs:F1}, songDuration={songDuration:F1}");
+                        Global.ResetWebAudioToStart();
+                        Global.webAudioPlayPositionMs = 0;
+                        bool isMeat = this.stageSelectMenu != null && this.stageSelectMenu.getCurrentLevel() == 3;
+                        this.ResetChoreography(1, alternating: false, meat: isMeat);
+                        this.currEvent = 0;
+                    }
+                    Global.webAudioPlayPositionMs = mediaMs;
+                    Global.webAudioIsPlaying = true;
+                }
+                else if (MediaPlayer.State == MediaState.Playing)
                 {
                     Global.webAudioIsPlaying = true;
                     Global.webAudioPlayPositionMs += gameTime.ElapsedGameTime.TotalMilliseconds;
+                    if (Global.webAudioPlayPositionMs >= songDuration)
+                    {
+                        System.Console.WriteLine($"[TKA LOOP RESET] Song duration threshold reached! webAudioMs={Global.webAudioPlayPositionMs:F1}, songDuration={songDuration:F1}");
+                        Global.ResetWebAudioToStart();
+                        Global.webAudioPlayPositionMs %= songDuration;
+                        bool isMeat = this.stageSelectMenu != null && this.stageSelectMenu.getCurrentLevel() == 3;
+                        this.ResetChoreography(1, alternating: false, meat: isMeat);
+                        this.currEvent = 0;
+                    }
                 }
                 else
                 {
@@ -465,10 +631,6 @@ namespace Helicopter.Core
                     {
                         Global.webAudioPlayPositionMs = 0;
                     }
-                }
-                if (this.currEvent == 0 && Global.webAudioPlayPositionMs > 2000.0)
-                {
-                    Global.webAudioPlayPositionMs = 0;
                 }
                 elapsedMilliseconds = (float)Global.webAudioPlayPositionMs;
             }
@@ -624,7 +786,7 @@ namespace Helicopter.Core
 				this.UpdateBackground(num);
 				this.UpdateHelicopter(num);
 				this.UpdateForeground(num);
-                if (this.currInput.IsButtonPressed(Buttons.Start) || (pauseButtonRec.Contains((touchLocations[0].Position - touchOffset) * resolutionDifference) && currInput.IsThingTouched()))
+                if (this.currInput.IsButtonPressed(Buttons.Start) || (pauseButtonRec.Contains(Game1.GetTouchPosition()) && currInput.IsThingTouched()))
                 {
                     MediaPlayer.Pause();
                     Global.SetVibrationPause();
@@ -681,23 +843,27 @@ namespace Helicopter.Core
 				this.creditsMenu.Update(num, this.currInput, ref this.gameState);
 				break;
 			case GameState.EXIT:
-				base.Exit();
+				if (Game1.IsWeb)
+				{
+					Global.RedirectToQuitUrl();
+					this.gameState = GameState.MAIN_MENU;
+				}
+				else
+				{
+					base.Exit();
+				}
 				break;
 			}
 			this.currInput.EndUpdate();
             Global.UpdateVibration(num);
 			base.Update(gameTime);
-            System.Console.WriteLine($"DEBUG: Exiting Update at {gameTime.TotalGameTime.TotalSeconds}");
             } catch (System.Exception ex) { System.Console.WriteLine("UPDATE CRASH: " + ex); }
 		}
 
 		protected override bool BeginDraw()
 		{
-            System.Console.WriteLine($"DEBUG: Entering BeginDraw. IsActive={this.IsActive}, GraphicsDevice={(base.GraphicsDevice != null ? base.GraphicsDevice.GetType().Name : "null")}");
             try {
-                bool result = base.BeginDraw();
-                System.Console.WriteLine($"DEBUG: Exiting BeginDraw, result: {result}");
-                return result;
+                return base.BeginDraw();
             } catch (System.Exception ex) {
                 System.Console.WriteLine("BEGINDRAW CRASH: " + ex);
                 return false;
@@ -707,7 +873,6 @@ namespace Helicopter.Core
 		protected override void Draw(GameTime gameTime)
 		{
             try {
-            System.Console.WriteLine($"DEBUG: Entering Draw at {gameTime.TotalGameTime.TotalSeconds}");
             Resolution.BeginDraw();
 			float num = (float)gameTime.ElapsedGameTime.TotalSeconds;
 			this.total += num;
@@ -730,16 +895,13 @@ namespace Helicopter.Core
 			this.DrawMenu();
 			spriteBatch.End();
 			base.Draw(gameTime);
-            System.Console.WriteLine($"DEBUG: Exiting Draw at {gameTime.TotalGameTime.TotalSeconds}");
             } catch (System.Exception ex) { System.Console.WriteLine("DRAW CRASH: " + ex); }
 		}
 
 		protected override void EndDraw()
 		{
-            System.Console.WriteLine("DEBUG: Entering EndDraw");
             try {
                 base.EndDraw();
-                System.Console.WriteLine("DEBUG: Exiting EndDraw");
             } catch (System.Exception ex) {
                 System.Console.WriteLine("ENDDRAW CRASH: " + ex);
             }
@@ -755,9 +917,7 @@ namespace Helicopter.Core
 			Global.scoreTexture = base.Content.Load<Texture2D>("Graphics/Score/score");
 			Global.highScoreTexture = base.Content.Load<Texture2D>("Graphics/Score/high");
 			Global.numbersTexture = base.Content.Load<Texture2D>("Graphics/Score/numbers");
-            if (!Game1.IsWeb) {
-			    Global.creditsTex = base.Content.Load<Texture2D>("Graphics/Menu/Credits/credits_bgMenu");
-            }
+			Global.creditsTex = base.Content.Load<Texture2D>("Graphics/Menu/Credits/credits_bgMenu");
 			Global.splashTex = base.Content.Load<Texture2D>("Graphics/Menu/Splash/splash_bgMenu");
 			Global.selectCatTex = base.Content.Load<Texture2D>("Graphics/Menu/KittenSelect/selectCat_bgMenu");
 			Global.selectCatTexAndroid = base.Content.Load<Texture2D>("Graphics/Menu/KittenSelect/selectCat_bgMenu_android");
@@ -918,6 +1078,20 @@ namespace Helicopter.Core
         #endregion Load Methods
 
         #region Event Info
+
+        private float GetSongDurationMs(int currentLevel)
+        {
+            switch (currentLevel)
+            {
+                case 0: return 235500f; // SeaOfLove
+                case 1: return 264015f; // LikeARainbow
+                case 2: return 225993f; // YoureShining
+                case 3: return 208750f; // TasteOfHeaven (Meat Pack)
+                case 4: return 231750f; // IntergalacticalHigh
+                case 5: return 240139f; // MyRainbow
+                default: return 200000f;
+            }
+        }
 
         private void LoadEventInfo(int currentLevel)
 		{
@@ -1179,11 +1353,9 @@ namespace Helicopter.Core
 			this.eventTimes[23] = 165362f;
 			this.eventTimes[24] = 207988f;
 
-			if (IsDesktop && IsOpenGL)
+			if (IsWeb || (IsDesktop && IsOpenGL))
 			{
-                // On desktop & openGL, elapsedMilliseconds is calculated as the song player's milliseconds - 1000
-                // The Taste of Heaven song is 210790ms long, meaning the song player never goes above 209790 while the event was 210000.
-				// This means that this event was never triggered and the choreography never got reset.
+                // On Web / OpenGL, elapsedMilliseconds does not go above song length
                 this.eventTimes[25] = 208750f;
 			} 
 			else
@@ -1213,11 +1385,8 @@ namespace Helicopter.Core
 			this.eventTimes[15] = 198234f;
 			this.eventTimes[16] = 220383f;
 			this.eventTimes[17] = 231247f;
-            if (IsDesktop && IsOpenGL)
+            if (IsWeb || (IsDesktop && IsOpenGL))
             {
-                // On desktop & openGL, elapsedMilliseconds is calculated as the song player's milliseconds - 1000
-                // The Intergalatical High song is 233082ms long, meaning the song player never goes above 232082 while the event was 232553.
-                // This means that this event was never triggered and the choreography never got reset.
                 this.eventTimes[18] = 231750f;
             }
             else
@@ -1345,7 +1514,7 @@ namespace Helicopter.Core
         #region Draw Methods
         private void DisplayPauseButton()
         {
-            spriteBatch.Draw(Global.pauseButton, new Rectangle(50, 50, 64, 64), Color.White);
+            spriteBatch.Draw(Global.pauseButton, new Rectangle(50, 50, 64, 64), Color.White * 0.5f);
         }
 
         private void DrawStage(float elapsed, GameTime gameTime)
@@ -1393,7 +1562,7 @@ namespace Helicopter.Core
 				this.catSelectMenu.Draw(spriteBatch, this.stageSelectMenu.getCurrentLevel(), this.scoreSystem);
 				break;
 			case GameState.PLAY:
-				if (Game1.IsMobile)
+				if (Game1.IsMobile || Game1.IsWeb)
 				{
                     this.DisplayPauseButton();
                 }
@@ -1734,10 +1903,14 @@ namespace Helicopter.Core
 					Global.SetVibrationEndless(on: false);
 					break;
 				case 41:
+					this.ResetChoreography(1, alternating: false, meat: false);
+					Global.ResetWebAudioToStart();
+					Global.webAudioPlayPositionMs = 0;
+					this.currEvent = 0;
 					MediaPlayer.Stop();
 					MediaPlayer.Play(this.songManager.CurrentSong);
 					Achievements.SongEnd();
-					break;
+					return;
 				}
 				this.currEvent++;
 				if (this.currEvent == 42)
@@ -1951,11 +2124,14 @@ namespace Helicopter.Core
 					break;
 				case 52:
 					this.ResetChoreography(1, alternating: false, meat: false);
+					Global.ResetWebAudioToStart();
+					Global.webAudioPlayPositionMs = 0;
+					this.currEvent = 0;
 					Global.SetVibrationEndless(on: false);
 					MediaPlayer.Stop();
 					MediaPlayer.Play(this.songManager.CurrentSong);
 					Achievements.SongEnd();
-                    break;
+					return;
 				}
 				this.currEvent++;
 				if (this.currEvent == 53)
@@ -2285,11 +2461,14 @@ namespace Helicopter.Core
 					break;
 				case 99:
 					this.ResetChoreography(1, alternating: false, meat: false);
+					Global.ResetWebAudioToStart();
+					Global.webAudioPlayPositionMs = 0;
+					this.currEvent = 0;
 					Global.SetVibrationEndless(on: false);
 					MediaPlayer.Stop();
 					MediaPlayer.Play(this.songManager.CurrentSong);
 					Achievements.SongEnd();
-                    break;
+					return;
 				}
 				this.currEvent++;
 				if (this.currEvent == 100)
@@ -2381,11 +2560,15 @@ namespace Helicopter.Core
 					this.ResetChoreography(1, alternating: false, meat: true);
 					break;
 				case 25:
+					this.ResetChoreography(1, alternating: false, meat: true);
+					Global.ResetWebAudioToStart();
+					Global.webAudioPlayPositionMs = 0;
+					this.currEvent = 0;
 					Global.SetVibrationEndless(on: false);
 					MediaPlayer.Stop();
 					MediaPlayer.Play(this.songManager.CurrentSong);
 					Achievements.SongEnd();
-                    break;
+					return;
 				}
 				this.currEvent++;
 				if (this.currEvent == 26)
@@ -2463,11 +2646,15 @@ namespace Helicopter.Core
 					this.ResetChoreography(1, alternating: false, meat: false);
 					break;
 				case 18:
+					this.ResetChoreography(1, alternating: false, meat: false);
+					Global.ResetWebAudioToStart();
+					Global.webAudioPlayPositionMs = 0;
+					this.currEvent = 0;
 					Global.SetVibrationEndless(on: false);
 					MediaPlayer.Stop();
 					MediaPlayer.Play(this.songManager.CurrentSong);
 					Achievements.SongEnd();
-                    break;
+					return;
 				}
 				this.currEvent++;
 				if (this.currEvent == 19)
@@ -2564,10 +2751,14 @@ namespace Helicopter.Core
 						rainbowOverlayEnabled = false;
                         break;
 					case 23:
+						this.ResetChoreography(1, alternating: false, meat: false);
+						Global.ResetWebAudioToStart();
+						Global.webAudioPlayPositionMs = 0;
+						this.currEvent = 0;
                         MediaPlayer.Stop();
                         MediaPlayer.Play(this.songManager.CurrentSong);
 						Achievements.SongEnd();
-                        break;
+						return;
 					}
 				this.currEvent++;
 				if (this.currEvent == 24)
@@ -2855,7 +3046,9 @@ namespace Helicopter.Core
 
 		private void ResetChoreography(int index, bool alternating, bool meat)
 		{
+			this.currEvent = 0;
 			Global.webAudioPlayPositionMs = 0;
+			this.bSpriteManager.Reset();
 			this.ResetLights();
 			this.ResetShootingStars();
 			this.ResetHeart(index, alternating);

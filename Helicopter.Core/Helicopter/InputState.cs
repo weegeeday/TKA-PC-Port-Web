@@ -43,13 +43,28 @@ namespace Helicopter.Core
             }
         }
 
+        public void FlushInput()
+        {
+            this.prevInput = GamePad.GetState(Global.playerIndex ?? Microsoft.Xna.Framework.PlayerIndex.One);
+            this.currInput = this.prevInput;
+            this.prevKeyInput = Keyboard.GetState();
+            this.currKeyInput = this.prevKeyInput;
+            this.prevTouches = TouchPanel.GetState();
+            this.currTouches = this.prevTouches;
+            if (Game1.IsWeb)
+            {
+                this.prevMouseState = Mouse.GetState();
+                this.currMouseState = this.prevMouseState;
+            }
+        }
+
         public bool IsThingTouched()
         {
-            bool touchPressed = this.currTouches.Count > 0 && this.prevTouches.Count == 0;
-            bool mousePressed = Game1.IsWeb
+            bool touchJustPressed = (this.currTouches.Count > 0 && this.prevTouches.Count == 0);
+            bool mouseJustPressed = Game1.IsWeb
                 && this.currMouseState.LeftButton == ButtonState.Pressed
                 && this.prevMouseState.LeftButton == ButtonState.Released;
-            return touchPressed || mousePressed;
+            return touchJustPressed || mouseJustPressed;
         }
 
 		public bool IsButtonPressed(Buttons button)
@@ -62,8 +77,7 @@ namespace Helicopter.Core
 				flag2 = (this.currKeyInput.IsKeyDown(Keys.Space) && this.prevKeyInput.IsKeyUp(Keys.Space))
                      || (this.currKeyInput.IsKeyDown(Keys.Enter) && this.prevKeyInput.IsKeyUp(Keys.Enter))
                      || (this.currKeyInput.IsKeyDown(Keys.Z) && this.prevKeyInput.IsKeyUp(Keys.Z))
-                     || (this.currKeyInput.IsKeyDown(Keys.J) && this.prevKeyInput.IsKeyUp(Keys.J))
-                     || (Game1.IsWeb && this.currMouseState.LeftButton == ButtonState.Pressed && this.prevMouseState.LeftButton == ButtonState.Released);
+                     || (this.currKeyInput.IsKeyDown(Keys.J) && this.prevKeyInput.IsKeyUp(Keys.J));
 				break;
 			case Buttons.B:
 				flag2 = (this.currKeyInput.IsKeyDown(Keys.Escape) && this.prevKeyInput.IsKeyUp(Keys.Escape))
@@ -110,7 +124,7 @@ namespace Helicopter.Core
 			switch (button)
 			{
 			case Buttons.A:
-				flag2 = this.currKeyInput.IsKeyUp(Keys.Space) && this.currKeyInput.IsKeyUp(Keys.Enter) && this.currKeyInput.IsKeyUp(Keys.Z) && this.currKeyInput.IsKeyUp(Keys.J) && (!Game1.IsWeb || this.currMouseState.LeftButton == ButtonState.Released);
+				flag2 = this.currKeyInput.IsKeyUp(Keys.Space) && this.currKeyInput.IsKeyUp(Keys.Enter) && this.currKeyInput.IsKeyUp(Keys.Z) && this.currKeyInput.IsKeyUp(Keys.J);
 				break;
 			case Buttons.B:
 				flag2 = this.currKeyInput.IsKeyUp(Keys.Escape) && this.currKeyInput.IsKeyUp(Keys.Back) && this.currKeyInput.IsKeyUp(Keys.B) && this.currKeyInput.IsKeyUp(Keys.X) && this.currKeyInput.IsKeyUp(Keys.K);
@@ -148,7 +162,7 @@ namespace Helicopter.Core
 			switch (button)
 			{
 			case Buttons.A:
-				flag2 = this.currKeyInput.IsKeyDown(Keys.Space) || this.currKeyInput.IsKeyDown(Keys.Enter) || this.currKeyInput.IsKeyDown(Keys.Z) || this.currKeyInput.IsKeyDown(Keys.J) || (Game1.IsWeb && this.currMouseState.LeftButton == ButtonState.Pressed);
+				flag2 = this.currKeyInput.IsKeyDown(Keys.Space) || this.currKeyInput.IsKeyDown(Keys.Enter) || this.currKeyInput.IsKeyDown(Keys.Z) || this.currKeyInput.IsKeyDown(Keys.J);
 				break;
 			case Buttons.B:
 				flag2 = this.currKeyInput.IsKeyDown(Keys.Escape) || this.currKeyInput.IsKeyDown(Keys.Back) || this.currKeyInput.IsKeyDown(Keys.B) || this.currKeyInput.IsKeyDown(Keys.X) || this.currKeyInput.IsKeyDown(Keys.K);

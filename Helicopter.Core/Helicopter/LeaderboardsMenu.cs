@@ -16,9 +16,10 @@ namespace Helicopter.Core
 
 		public void Update(float dt, InputState currInput, ref GameState gameState)
 		{
-            Rectangle stats_back = new(1000, 634, 173, 40);
+            Rectangle stats_back = new(950, 610, 260, 80);
             base.Update(dt, currInput);
-            if (currInput.IsButtonPressed(Buttons.A) || currInput.IsButtonPressed(Buttons.B) || (stats_back.Contains((Game1.touchLocations[0].Position - Game1.touchOffset) * Game1.resolutionDifference) && currInput.IsThingTouched()))
+            Vector2 touchPos = Game1.GetTouchPosition();
+            if (currInput.IsButtonPressed(Buttons.A) || currInput.IsButtonPressed(Buttons.B) || (stats_back.Contains(touchPos) && currInput.IsThingTouched()))
             {
                 Global.PlayCatSound();
 				gameState = this.lastGameState;

@@ -50,7 +50,26 @@ namespace Helicopter.Core
                 base.AddMenuItem(new MenuItem(Global.optionsTex, new Rectangle(0, 851, 364, 54), new Vector2(640f, 490f)));
                 base.AddMenuItem(new MenuItem(Global.optionsTex, new Rectangle(0, 907, 236, 54), new Vector2(640f, 587f)));
             }
-			else if (Game1.IsDesktop || Game1.IsWeb)
+			else if (Game1.IsWeb)
+			{
+				musicOn = true;
+                sfxOn = true;
+
+                base.AddMenuItem(new MenuItem(Global.optionsTex, new Rectangle(0, 722, 190, 41), new Vector2(130f + 190 / 2, 174f + 41 / 2))); //music
+                base.AddMenuItem(new MenuItem(Global.optionsTex, new Rectangle(0, 765, 125, 41), new Vector2(130f + 125 / 2, 237f + 41 / 2))); //sfx
+                base.AddMenuItem(new MenuItem(Global.optionsTex, new Rectangle(0, 851, 364, 54), new Vector2(456f + 364 / 2, 514f + 54 / 2))); //credits
+                base.AddMenuItem(new MenuItem(Global.optionsTex, new Rectangle(0, 907, 236, 54), new Vector2(520f + 236 / 2, 612f + 54 / 2))); //back
+
+                sound_levels_[0] = new Rectangle(0, 0, 109, 43);
+                sound_levels_[1] = new Rectangle(109, 0, 109, 43);
+                sound_levels_[2] = new Rectangle(218, 0, 109, 43);
+                sound_levels_[3] = new Rectangle(327, 0, 109, 43);
+                sound_levels_[4] = new Rectangle(436, 0, 109, 43);
+                sound_levels_[5] = new Rectangle(545, 0, 109, 43);
+                sound_levels_[6] = new Rectangle(654, 0, 109, 43);
+                sound_levels_[7] = new Rectangle(763, 0, 109, 43);
+			}
+			else if (Game1.IsDesktop)
 			{
 				musicOn = true;
                 sfxOn = true;
@@ -83,39 +102,76 @@ namespace Helicopter.Core
 		public void Update(float dt, InputState currInput, ref GameState gameState)
 		{
             base.Update(dt, currInput);
-            Rectangle options_music = new(128, 171, 190, 41);
-            Rectangle options_sfx = new(128, 234, 125, 41);
-            Rectangle options_vibration = new(128, 298, 412, 41);
-            Rectangle options_credits = new(458, 463, 364, 54);
-            Rectangle options_back = new(522, 560, 236, 54);
 
-            if (options_music.Contains((Game1.touchLocations[0].Position - Game1.touchOffset) * Game1.resolutionDifference) && currInput.IsThingTouched())
+            Rectangle options_music = new(120, 165, 300, 50);
+            Rectangle options_music_slider = new(1060, 165, 140, 50);
+
+            Rectangle options_sfx = new(120, 225, 250, 50);
+            Rectangle options_sfx_slider = new(1060, 225, 140, 50);
+
+            Rectangle options_credits = new(400, 500, 480, 60);
+            Rectangle options_back = new(450, 590, 380, 60);
+
+            Vector2 touchPos = Game1.GetTouchPosition();
+
+            if (options_music.Contains(touchPos) || options_music_slider.Contains(touchPos))
             {
-                Global.PlayCatSound();
-                if (this.musicOn) this.musicOn = false; else this.musicOn = true;
-                this.ChangeSettings();
+                base.index_ = 0;
+                if (currInput.IsThingTouched())
+                {
+                    Global.PlayCatSound();
+                    if (options_music_slider.Contains(touchPos))
+                    {
+                        float fillRatio = MathHelper.Clamp((touchPos.X - 1072f) / 109f, 0f, 1f);
+                        this.musicValue = (int)Math.Round(fillRatio * 7f);
+                    }
+                    else
+                    {
+                        this.musicValue = (this.musicValue + 1) % 8;
+                    }
+                    this.musicOn = this.musicValue > 0;
+                    MediaPlayer.Volume = (float)this.musicValue / 7f;
+                    Storage.musicValue_ = this.musicValue;
+                    this.ChangeSettings();
+                }
             }
-            else if (options_sfx.Contains((Game1.touchLocations[0].Position - Game1.touchOffset) * Game1.resolutionDifference) && currInput.IsThingTouched())
+            else if (options_sfx.Contains(touchPos) || options_sfx_slider.Contains(touchPos))
             {
-                Global.PlayCatSound();
-                if (this.sfxOn) this.sfxOn = false; else this.sfxOn = true;
-                this.ChangeSettings();
+                base.index_ = 1;
+                if (currInput.IsThingTouched())
+                {
+                    Global.PlayCatSound();
+                    if (options_sfx_slider.Contains(touchPos))
+                    {
+                        float fillRatio = MathHelper.Clamp((touchPos.X - 1072f) / 109f, 0f, 1f);
+                        this.FXValue = (int)Math.Round(fillRatio * 7f);
+                    }
+                    else
+                    {
+                        this.FXValue = (this.FXValue + 1) % 8;
+                    }
+                    this.sfxOn = this.FXValue > 0;
+                    Storage.FXValue_ = this.FXValue;
+                    this.ChangeSettings();
+                }
             }
-            else if (options_vibration.Contains((Game1.touchLocations[0].Position - Game1.touchOffset) * Game1.resolutionDifference) && currInput.IsThingTouched())
+            else if (options_credits.Contains(touchPos))
             {
-                Global.PlayCatSound();
-                if (this.vibrationOn) this.vibrationOn = false; else this.vibrationOn = true;
-                this.ChangeSettings();
+                base.index_ = 2;
+                if (currInput.IsThingTouched())
+                {
+                    Global.PlayCatSound();
+                    gameState = GameState.CREDITS;
+                }
             }
-            else if (options_credits.Contains((Game1.touchLocations[0].Position - Game1.touchOffset) * Game1.resolutionDifference) && currInput.IsThingTouched())
+            else if (options_back.Contains(touchPos))
             {
-                Global.PlayCatSound();
-                gameState = GameState.CREDITS;
-            }
-            else if (options_back.Contains((Game1.touchLocations[0].Position - Game1.touchOffset) * Game1.resolutionDifference) && currInput.IsThingTouched())
-            {
-                Global.PlayCatSound();
-                gameState = this.lastGameState;
+                base.index_ = 3;
+                if (currInput.IsThingTouched())
+                {
+                    Global.PlayCatSound();
+                    gameState = this.lastGameState;
+                }
             }
 
             if (currInput.IsButtonPressed(Buttons.A))
@@ -124,90 +180,19 @@ namespace Helicopter.Core
                 switch (base.index_)
                 {
                     case 0:
-                        //this.musicOn = !this.musicOn;
                         MusicSubMenu(currInput);
                         break;
                     case 1:
-                        //this.sfxOn = !this.sfxOn;
                         FXSubMenu(currInput);
                         break;
                     case 2:
-                        this.vibrationOn = !this.vibrationOn;
-                        break;
-                    case 3:
-                        this.fullscreenOn = !this.fullscreenOn;
-                        break;
-                    case 4:
-                        ResSubMenu(currInput);
-                        break;
-                    case 5:
                         base.index_ = 0;
                         gameState = GameState.CREDITS;
                         break;
-                    case 6:
+                    case 3:
                         base.index_ = 0;
                         gameState = this.lastGameState;
                         break;
-                }
-                if (base.index_ < 5)
-                {
-                    this.ChangeSettings();
-                }
-            }
-            if (currInput.IsButtonPressed(Buttons.DPadLeft))
-            {
-                if (base.index_ != 4)
-                    Global.PlayCatSound();
-                switch (base.index_)
-                {
-                    case 0:
-                        //this.musicOn = true;
-                        MusicSubMenu(currInput);
-                        break;
-                    case 1:
-                        //this.sfxOn = true;
-                        FXSubMenu(currInput);
-                        break;
-                    case 2:
-                        this.vibrationOn = true;
-                        break;
-                    case 3:
-                        this.fullscreenOn = true;
-                        break;
-                    case 4:
-                        ResSubMenu(currInput);
-                        break;
-                }
-                if (base.index_ < 4)
-                {
-                    this.ChangeSettings();
-                }
-            }
-            if (currInput.IsButtonPressed(Buttons.DPadRight))
-            {
-                if (base.index_ != 4)
-                    Global.PlayCatSound();
-                switch (base.index_)
-                {
-                    case 0:
-                        MusicSubMenu(currInput);
-                        break;
-                    case 1:
-                        FXSubMenu(currInput);
-                        break;
-                    case 2:
-                        this.vibrationOn = false;
-                        break;
-                    case 3:
-                        this.fullscreenOn = false;
-                        break;
-                    case 4:
-                        ResSubMenu(currInput);
-                        break;
-                }
-                if (base.index_ < 4)
-                {
-                    this.ChangeSettings();
                 }
             }
             if (currInput.IsButtonPressed(Buttons.B))
@@ -379,13 +364,23 @@ namespace Helicopter.Core
                     this.DrawOffOn(spriteBatch, new Vector2(900f, 298f));
                 }
             }
-		    else if (Game1.IsDesktop || Game1.IsWeb)
+		    else if (Game1.IsWeb)
             {
                 spriteBatch.Draw(Global.optionsTex, Vector2.Zero, (Rectangle?)new Rectangle(0, 0, 1280, 720), Color.White);
                 spriteBatch.Draw(Global.optionsTex, new Vector2(412f, 43f), (Rectangle?)new Rectangle(799, 885, 456, 58), Color.White); //options title
                 spriteBatch.Draw(Global.sound_levels, new Vector2(1072f, 214f - 42f), (Rectangle?)sound_levels_[musicValue], Color.White);
                 spriteBatch.Draw(Global.sound_levels, new Vector2(1072f, 277f - 42f), (Rectangle?)sound_levels_[FXValue], Color.White);
-                this.resOptions[this.resIndex].Draw(spriteBatch);
+            }
+		    else if (Game1.IsDesktop)
+            {
+                spriteBatch.Draw(Global.optionsTex, Vector2.Zero, (Rectangle?)new Rectangle(0, 0, 1280, 720), Color.White);
+                spriteBatch.Draw(Global.optionsTex, new Vector2(412f, 43f), (Rectangle?)new Rectangle(799, 885, 456, 58), Color.White); //options title
+                spriteBatch.Draw(Global.sound_levels, new Vector2(1072f, 214f - 42f), (Rectangle?)sound_levels_[musicValue], Color.White);
+                spriteBatch.Draw(Global.sound_levels, new Vector2(1072f, 277f - 42f), (Rectangle?)sound_levels_[FXValue], Color.White);
+                if (this.resOptions != null && this.resOptions[this.resIndex] != null)
+                {
+                    this.resOptions[this.resIndex].Draw(spriteBatch);
+                }
                 if (this.vibrationOn)
                 {
                     this.DrawOnOff(spriteBatch, new Vector2(901f, 300f));

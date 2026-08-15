@@ -147,30 +147,55 @@ namespace Helicopter.Core
 		{
 			this.UpdateBackground(dt);
 			base.Update(dt, currInput);
-            Rectangle playButton = new(123, 579, 169, 42);
-            Rectangle optionsButton = new(363, 579, 284, 42);
-            Rectangle statsButton = new(719, 579, 211, 42);
-            Rectangle exitButton = new(1002, 579, 156, 42);
+            Rectangle playButton = new(80, 540, 240, 110);
+            Rectangle optionsButton = new(330, 540, 330, 110);
+            Rectangle statsButton = new(670, 540, 290, 110);
+            Rectangle exitButton = new(970, 540, 240, 110);
 
-            if (playButton.Contains((Game1.touchLocations[0].Position - Game1.touchOffset) * Game1.resolutionDifference) && currInput.IsThingTouched())
+            Vector2 touchPos = Game1.GetTouchPosition();
+            if (currInput.IsThingTouched())
             {
-                Global.PlayCatSound();
-                gameState = GameState.STAGE_SELECT;
+                System.Console.WriteLine($"[TOUCH LOG] MainMenu Clicked at Pos=({touchPos.X:F1}, {touchPos.Y:F1})");
             }
-            else if (optionsButton.Contains((Game1.touchLocations[0].Position - Game1.touchOffset) * Game1.resolutionDifference) && currInput.IsThingTouched())
+            if (playButton.Contains(touchPos))
             {
-                Global.PlayCatSound();
-                gameState = GameState.OPTIONS;
+                base.index_ = 0;
+                if (currInput.IsThingTouched())
+                {
+                    System.Console.WriteLine($"[TOUCH ACTION] MainMenu -> PLAY clicked at ({touchPos.X:F1}, {touchPos.Y:F1})");
+                    Global.PlayCatSound();
+                    gameState = GameState.STAGE_SELECT;
+                }
             }
-            else if (statsButton.Contains((Game1.touchLocations[0].Position - Game1.touchOffset) * Game1.resolutionDifference) && currInput.IsThingTouched())
+            else if (optionsButton.Contains(touchPos))
             {
-                Global.PlayCatSound();
-                gameState = GameState.LEADERBOARDS;
+                base.index_ = 1;
+                if (currInput.IsThingTouched())
+                {
+                    System.Console.WriteLine($"[TOUCH ACTION] MainMenu -> OPTIONS clicked at ({touchPos.X:F1}, {touchPos.Y:F1})");
+                    Global.PlayCatSound();
+                    gameState = GameState.OPTIONS;
+                }
             }
-            else if (exitButton.Contains((Game1.touchLocations[0].Position - Game1.touchOffset) * Game1.resolutionDifference) && currInput.IsThingTouched())
+            else if (statsButton.Contains(touchPos))
             {
-                Global.PlayCatSound();
-                gameState = GameState.EXIT;
+                base.index_ = 2;
+                if (currInput.IsThingTouched())
+                {
+                    System.Console.WriteLine($"[TOUCH ACTION] MainMenu -> STATS clicked at ({touchPos.X:F1}, {touchPos.Y:F1})");
+                    Global.PlayCatSound();
+                    gameState = GameState.LEADERBOARDS;
+                }
+            }
+            else if (exitButton.Contains(touchPos))
+            {
+                base.index_ = 3;
+                if (currInput.IsThingTouched())
+                {
+                    System.Console.WriteLine($"[TOUCH ACTION] MainMenu -> QUIT clicked at ({touchPos.X:F1}, {touchPos.Y:F1})");
+                    Global.PlayCatSound();
+                    gameState = GameState.EXIT;
+                }
             }
 
             if (!currInput.IsButtonPressed(Buttons.A))
